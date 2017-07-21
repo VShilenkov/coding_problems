@@ -1,0 +1,132 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "windows": {
+        "type": "shell",
+        "command": "cmd",
+        "isBackground": false,
+        "options": {
+            "cwd": "${fileDirname}"
+        },
+        "args": [
+            "/C"
+        ]
+    },
+    "tasks" : [
+        {
+            "taskName" : "Make: Release: Build ",
+            "type": "shell",
+            "command" : "mingw32-make",
+            "isBackground": false,
+            "args": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher" : {
+                "owner": "cpp",
+                "pattern" : [
+                    {
+                        "regexp": "^([a-zA-Z0-9\\-_]+?\\.(?:cpp|hpp|c|h)):([0-9]+):([0-9]+):\\s(error|warning|info):\\s(.*?)$",
+                        "file": 1,
+                        "line": 2,
+                        "column": 3,
+                        "severity": 4,
+                        "message": 5
+                    },
+                    {
+                        "regexp": "^\\s*(.*?)\\s*$",
+                        "code": 1
+                    },
+                    {
+                        "regexp": "^\\s*\\^\\s*$"
+                    }
+                ]
+            }
+        },
+        {
+            "taskName" : "Make: Debug: Build",
+            "type": "shell",
+            "command": "mingw32-make",
+            "isBackground": false,
+            "args": [
+                "I_DEBUG_FLAG=1"
+            ],
+            "group": "build",
+            "problemMatcher" : {
+                "owner": "cpp",
+                "pattern" : [
+                    {
+                        "regexp": "^([a-zA-Z0-9\\-_]+?\\.(?:cpp|hpp|c|h)):([0-9]+):([0-9]+):\\s(error|warning|info):\\s(.*?)$",
+                        "file": 1,
+                        "line": 2,
+                        "column": 3,
+                        "severity": 4,
+                        "message": 5
+                    },
+                    {
+                        "regexp": "^\\s*(.*?)\\s*$",
+                        "code": 1
+                    },
+                    {
+                        "regexp": "^\\s*\\^\\s*$"
+                    }
+                ]
+            }
+        },
+        {
+            "taskName" : "Make: Release: Clean",
+            "type": "shell",
+            "command": "mingw32-make",
+            "isBackground": false,
+            "args": [
+                "clean"
+            ],
+            "group": "none"
+        },
+        {
+            "taskName" : "Make: Debug: Clean",
+            "type": "shell",
+            "command": "mingw32-make",
+            "isBackground": false,
+            "args": [
+                "clean",
+                "I_DEBUG_FLAG=1"
+            ],
+            "group": "none"
+        },
+        {
+            "taskName" : "Make: Release: Run",
+            "type": "shell",
+            "command": "mingw32-make",
+            "isBackground": false,
+            "args": [
+                "run"
+            ],
+            "group": "none"
+        },
+        {
+            "taskName" : "Make: Debug: Run",
+            "type": "shell",
+            "command": "mingw32-make",
+            "isBackground": false,
+            "args": [
+                "run",
+                "I_DEBUG_FLAG=1"
+            ],
+            "group": "none"
+        },
+        {
+            "taskName" : "Make: Release: Test",
+            "type": "shell",
+            "command": "mingw32-make",
+            "isBackground": false,
+            "args": [
+                "test"
+            ],
+            "group": "none"
+        }
+    ]
+    
+}
