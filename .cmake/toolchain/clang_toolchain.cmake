@@ -1,0 +1,26 @@
+set(CMAKE_C_COMPILER_ID   "Clang" CACHE STRING "" FORCE)
+set(CMAKE_CXX_COMPILER_ID "Clang" CACHE STRING "" FORCE)
+
+if (WIN32)
+    set(CMAKE_C_COMPILER   "clang-cl" CACHE STRING "" FORCE)
+    set(CMAKE_CXX_COMPILER "clang-cl" CACHE STRING "" FORCE)
+    set(CMAKE_LINKER       "lld-link" CACHE STRING "" FORCE)
+else()
+    set(CMAKE_C_COMPILER            "clang"     CACHE STRING "" FORCE)
+    set(CMAKE_CXX_COMPILER          "clang++"   CACHE STRING "" FORCE)
+    set(CMAKE_LINKER                "llvm-link" CACHE STRING "" FORCE)
+    set(CMAKE_EXECUTABLE_SUFFIX_CXX ".out"      CACHE STRING "" FORCE)
+    set(CMAKE_EXECUTABLE_SUFFIX_C   ".out"      CACHE STRING "" FORCE)
+endif(WIN32)
+
+add_compile_options("$<IF:$<PLATFORM_ID:Windows>,/,->Wall")
+
+if (WIN32)
+    set(ENV_PFX86    "ProgramFiles\(x86\)")
+    set(MVS_LIB_PATH "$ENV{${ENV_PFX86}}/Microsoft Visual Studio 14.0/VC/lib")
+    set(KIT_LIB_PATH "$ENV{${ENV_PFX86}}/Windows Kits/10/Lib/10.0.17134.0")
+
+    foreach(LP "${MVS_LIB_PATH}/amd64" "${KIT_LIB_PATH}/um/x64" "${KIT_LIB_PATH}/ucrt/x64" )
+        add_link_options("LINKER:SHELL:\"/libpath:${LP}\"")
+    endforeach()
+endif(WIN32)
