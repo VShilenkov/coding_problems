@@ -1,67 +1,24 @@
 {
     "configurations": [
         {
-            "name": "Mac",
-            "includePath": [
-                "${workspaceRoot}",
-                "/usr/include",
-                "/usr/local/include"
-            ],
-            "defines": [],
-            "intelliSenseMode": "clang-x64",
-            "browse": {
-                "path": [
-                    "/usr/include",
-                    "/usr/local/include",
-                    "${workspaceRoot}"
-                ],
-                "limitSymbolsToIncludedHeaders": true,
-                "databaseFilename": ""
-            },
-            "macFrameworkPath": [
-                "/System/Library/Frameworks",
-                "/Library/Frameworks"
-            ]
-        },
-        {
-            "name": "Linux",
-            "includePath": [
-                "${workspaceRoot}",
-                "/usr/include",
-                "/usr/local/include"
-            ],
-            "defines": [],
-            "intelliSenseMode": "clang-x64",
-            "browse": {
-                "path": [
-                    "/usr/include",
-                    "/usr/local/include",
-                    "${workspaceRoot}"
-                ],
-                "limitSymbolsToIncludedHeaders": true,
-                "databaseFilename": ""
-            }
-        },
-        {
             "name": "Win32",
             "includePath": [
-                "C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++",
-                "${workspaceFolder}"
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/pe/inc"
             ],
             "defines": [
                 "_DEBUG",
-                "UNICODE"
+                "UNICODE",
+                "_UNICODE"
             ],
+            "windowsSdkVersion": "10.0.17134.0",
+            "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/bin/cl.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
             "intelliSenseMode": "msvc-x64",
-            "browse": {
-                "path": [
-                    "C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++",
-                    "${workspaceFolder}"
-                ],
-                "limitSymbolsToIncludedHeaders": true,
-                "databaseFilename": ""
-            }
+            "configurationProvider": "vector-of-bool.cmake-tools",
+            "compileCommands": "${workspaceFolder}/build/Win MinGW Clang 7.0.0/MinGW Makefiles/Release/compile_commands.json"
         }
     ],
-    "version": 3
+    "version": 4
 }

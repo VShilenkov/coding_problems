@@ -1,64 +1,94 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
     "version": "2.0.0",
     "windows": {
         "type": "shell",
-        "command": "cmd",
         "isBackground": false,
         "options": {
-            "cwd": "${fileDirname}"
-        },
-        "args": [
-            "/C"
-        ]
-    },
-    "tasks" : [
-        {
-            "taskName" : "Make: Release: Build ",
-            "type": "shell",
-            "command" : "mingw32-make",
-            "isBackground": false,
-            "args": [],
-            "group": {
-                "kind": "build",
-                "isDefault": true
+            "cwd": "${fileDirname}",
+            "env": {
+                "VSC_INVOKED": "TRUE"
             },
-            "problemMatcher" : {
-                "owner": "cpp",
-                "pattern" : [
-                    {
-                        "regexp": "^([a-zA-Z0-9\\-_]+?\\.(?:cpp|hpp|c|h)):([0-9]+):([0-9]+):\\s(error|warning|info):\\s(.*?)$",
-                        "file": 1,
-                        "line": 2,
-                        "column": 3,
-                        "severity": 4,
-                        "message": 5
-                    },
-                    {
-                        "regexp": "^\\s*(.*?)\\s*$",
-                        "code": 1
-                    },
-                    {
-                        "regexp": "^\\s*\\^\\s*$"
-                    }
+            "shell": {
+                "executable": "PowerShell.exe",
+                "args": [
+                    "-NoLogo",
+                    "-NonInteractive",
+                    "-NoProfile"
                 ]
             }
         },
+        "presentation": {
+            "reveal": "always",
+            "panel": "shared",
+            "echo": true,
+            "focus": false,
+            "showReuseMessage": false,
+            "clear": false
+        }
+    },
+    "linux": {
+        "type": "shell",
+        "isBackground": false,
+        "options": {
+            "cwd": "${fileDirname}",
+            "env": {
+                "VSC_INVOKED": "TRUE"
+            }
+        },
+        "presentation": {
+            "echo": true,
+            "reveal": "always",
+            "focus": false,
+            "panel": "shared",
+            "showReuseMessage": false,
+            "clear": false
+        }
+    },
+    "tasks": [
+        // ----------------------------------------------------------------- Aux
         {
-            "taskName" : "Make: Debug: Build",
-            "type": "shell",
-            "command": "mingw32-make",
-            "isBackground": false,
+            "label": "shell.list.env",
+            "windows": {
+                "command": "gci",
+                "args": [
+                    "env:*"
+                ]
+            },
+            "linux": {
+                "command": "printenv",
+            },
+            "problemMatcher": []
+        }, // shell.list.env
+        // ---------------------------------------------------------- Generation
+        {
+            "label": "cmake.generate",
+            "command": "cmake",
             "args": [
-                "I_DEBUG_FLAG=1"
+                "-G${input:inputCMakeGenerator}",
+                "-DCMAKE_BUILD_TYPE=${input:inputBuildType}",
+                "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=\"${workspaceFolder}\\cmake\\toolchain\\${input:inputCompiler}_toolchain.cmake\"",
+                "-B\".\\build\\${input:inputCompiler}\\${input:inputCMakeGenerator}\\${input:inputBuildType}\"",
+                "-S\"${fileDirname}/\""
+            ],
+            "problemMatcher": []
+        }, // cmake.generate
+        // --------------------------------------------------------------- Build
+        {
+            "label": "cmake.build",
+            "dependsOn": "cmake.generate",
+            "command": "cmake",
+            "args": [
+                "--build",
+                ".\\build\\${input:inputCompiler}\\${input:inputCMakeGenerator}\\${input:inputBuildType}"
             ],
             "group": "build",
-            "problemMatcher" : {
+            "problemMatcher": {
                 "owner": "cpp",
-                "pattern" : [
+                "applyTo": "allDocuments",
+                "fileLocation": "absolute",
+                "pattern": [
                     {
-                        "regexp": "^([a-zA-Z0-9\\-_]+?\\.(?:cpp|hpp|c|h)):([0-9]+):([0-9]+):\\s(error|warning|info):\\s(.*?)$",
+                        "regexp": "^([a-zA-Z0-9\\\\-_:.]+?\\.(?:cpp|hpp|c|h))\\(([0-9]+),([0-9]+)\\):\\s*(error|warning|info):\\s*(.*?)$",
                         "file": 1,
                         "line": 2,
                         "column": 3,
@@ -70,63 +100,152 @@
                         "code": 1
                     },
                     {
-                        "regexp": "^\\s*\\^\\s*$"
+                        "regexp": "^\\s*\\^[ ~]*\\s*$"
                     }
                 ]
             }
-        },
+        }, // cmake.build
+        // ---------------------------------------------------------- Preprocess
         {
-            "taskName" : "Make: Release: Clean",
-            "type": "shell",
-            "command": "mingw32-make",
-            "isBackground": false,
+            "label": "cmake.preprocess",
+            "dependsOn": "cmake.generate",
+            "command": "cmake",
             "args": [
+                "--build",
+                ".\\build\\${input:inputCompiler}\\${input:inputCMakeGenerator}\\${input:inputBuildType}",
+                "--target",
+                "main.i"
+            ],
+            "group": "build",
+            "problemMatcher": {
+                "owner": "cpp",
+                "applyTo": "allDocuments",
+                "fileLocation": "absolute",
+                "pattern": [
+                    {
+                        "regexp": "^([a-zA-Z0-9\\\\-_:.]+?\\.(?:cpp|hpp|c|h))\\(([0-9]+),([0-9]+)\\):\\s*(error|warning|info):\\s*(.*?)$",
+                        "file": 1,
+                        "line": 2,
+                        "column": 3,
+                        "severity": 4,
+                        "message": 5
+                    },
+                    {
+                        "regexp": "^\\s*(.*?)\\s*$",
+                        "code": 1
+                    },
+                    {
+                        "regexp": "^\\s*\\^[ ~]*\\s*$"
+                    }
+                ]
+            }
+        }, // cmake.preprocess
+        // ------------------------------------------------------------ Assembly
+        {
+            "label": "cmake.assembly",
+            "dependsOn": "cmake.generate",
+            "command": "cmake",
+            "args": [
+                "--build",
+                ".\\build\\${input:inputCompiler}\\${input:inputCMakeGenerator}\\${input:inputBuildType}",
+                "--target",
+                "main.s"
+            ],
+            "group": "build",
+            "problemMatcher": {
+                "owner": "cpp",
+                "applyTo": "allDocuments",
+                "fileLocation": "absolute",
+                "pattern": [
+                    {
+                        "regexp": "^([a-zA-Z0-9\\\\-_:.]+?\\.(?:cpp|hpp|c|h))\\(([0-9]+),([0-9]+)\\):\\s*(error|warning|info):\\s*(.*?)$",
+                        "file": 1,
+                        "line": 2,
+                        "column": 3,
+                        "severity": 4,
+                        "message": 5
+                    },
+                    {
+                        "regexp": "^\\s*(.*?)\\s*$",
+                        "code": 1
+                    },
+                    {
+                        "regexp": "^\\s*\\^[ ~]*\\s*$"
+                    }
+                ]
+            }
+        }, // cmake.assembly
+        // --------------------------------------------------------------- Clean
+        {
+            "label": "cmake.clean",
+            "command": "cmake",
+            "args": [
+                "--build",
+                ".\\build\\${input:inputCompiler}\\${input:inputCMakeGenerator}\\${input:inputBuildType}",
+                "--target",
                 "clean"
             ],
-            "group": "none"
+            "problemMatcher": []
+        }, // cmake.clean
+        {
+            "label": "shell.clean.all",
+            "command": "rm",
+            "windows": {
+                "args": [
+                    "-recurse",
+                    ".\\build",
+                    "-ErrorAction",
+                    "SilentlyContinue"
+                ],
+            },
+            "linux": {
+                "args": [
+                    "-rf",
+                    "./build/"
+                ]
+            },
+            "problemMatcher": []
+        }, // shell.clean.all
+        // -------------------------------------------------------------- Rebuid
+        {
+            "label": "cmake.rebuild",
+            "dependsOn": [
+                "cmake.clean",
+                "cmake.build"
+            ],
+            "problemMatcher": []
+        } // cmake.rebuild
+    ],
+    "inputs": [
+        {
+            "id": "inputBuildType",
+            "description": "Build type",
+            "default": "debug",
+            "type": "pickString",
+            "options": [
+                "debug",
+                "release"
+            ]
         },
         {
-            "taskName" : "Make: Debug: Clean",
-            "type": "shell",
-            "command": "mingw32-make",
-            "isBackground": false,
-            "args": [
-                "clean",
-                "I_DEBUG_FLAG=1"
-            ],
-            "group": "none"
+            "id": "inputCMakeGenerator",
+            "description": "CMake Generator to use",
+            "default": "Unix Makefiles",
+            "type": "pickString",
+            "options": [
+                "Unix Makefiles",
+                "MinGW Makefiles"
+            ]
         },
         {
-            "taskName" : "Make: Release: Run",
-            "type": "shell",
-            "command": "mingw32-make",
-            "isBackground": false,
-            "args": [
-                "run"
-            ],
-            "group": "none"
-        },
-        {
-            "taskName" : "Make: Debug: Run",
-            "type": "shell",
-            "command": "mingw32-make",
-            "isBackground": false,
-            "args": [
-                "run",
-                "I_DEBUG_FLAG=1"
-            ],
-            "group": "none"
-        },
-        {
-            "taskName" : "Make: Release: Test",
-            "type": "shell",
-            "command": "mingw32-make",
-            "isBackground": false,
-            "args": [
-                "test"
-            ],
-            "group": "none"
+            "id": "inputCompiler",
+            "description": "Compiler to use",
+            "default": "gcc",
+            "type": "pickString",
+            "options": [
+                "gcc",
+                "clang"
+            ]
         }
     ]
-    
 }

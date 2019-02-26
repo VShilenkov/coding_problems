@@ -1,5 +1,57 @@
 {
+    "cmake.buildDirectory": "${workspaceRoot}/build/${buildKit}/${generator}/${buildType}",
+    "cmake.configureOnOpen": true,
+
+    "editor.emptySelectionClipboard": false,
+    "editor.mouseWheelZoom"         : true,
+    "editor.renderWhitespace"       : "all",
+    "editor.rulers"                 : [80, 120, 160],
+
+    "explorer.sortOrder": "type",
+
+    "files.autoGuessEncoding": true,
+
+    "window.title": "${dirty}${activeEditorMedium}${separator}${rootName}${separator}${appName}",
     "files.associations": {
-        "string": "cpp"
+        "iostream": "cpp",
+        "chrono": "cpp",
+        "ratio": "cpp",
+        "*.tcc": "cpp",
+        "cctype": "cpp",
+        "clocale": "cpp",
+        "cstdint": "cpp",
+        "cstdio": "cpp",
+        "cstdlib": "cpp",
+        "ctime": "cpp",
+        "cwchar": "cpp",
+        "cwctype": "cpp",
+        "exception": "cpp",
+        "initializer_list": "cpp",
+        "iosfwd": "cpp",
+        "istream": "cpp",
+        "limits": "cpp",
+        "new": "cpp",
+        "ostream": "cpp",
+        "stdexcept": "cpp",
+        "streambuf": "cpp",
+        "system_error": "cpp",
+        "type_traits": "cpp",
+        "typeinfo": "cpp",
+        "utility": "cpp",
+        "cmath": "cpp",
+        "cstddef": "cpp",
+        "cstring": "cpp",
+        "ios": "cpp",
+        "xfacet": "cpp",
+        "xiosbase": "cpp",
+        "xlocale": "cpp",
+        "xlocinfo": "cpp",
+        "xlocnum": "cpp",
+        "xmemory0": "cpp",
+        "xstddef": "cpp",
+        "xstring": "cpp",
+        "xtr1common": "cpp",
+        "xutility": "cpp"
     }
+
 }

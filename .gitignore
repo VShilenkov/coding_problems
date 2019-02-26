@@ -1,6 +1,14 @@
 # Prerequisites
 *.d
 
+# Preprocessed files
+**/build/**/*.i
+**/build/**/*.ii
+
+# Assembley files
+**/build/**/*.s
+**/build/**/*.asm
+
 # Compiled Object files
 *.slo
 *.lo
@@ -30,3 +38,27 @@
 *.exe
 *.out
 *.app
+
+# Executable symbols dadtabase
+*.pdb
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/accelerated.code-snippets
+!.vscode/cmake-kits.json
+
+# CMake 
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+*.exe.manifest
