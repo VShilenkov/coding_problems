@@ -15,6 +15,30 @@ using std::chrono::high_resolution_clock;
 using number_t = unsigned long long int;
 using order_t  = unsigned short int;
 
+number_t palindrome_5_bf(const number_t& factor, number_t* const reversed)
+{
+    const number_t base   = 10ULL;
+    const number_t base_2 = base * base;
+    const number_t base_3 = base_2 * base;
+
+    number_t result = 0U;
+    for (number_t i = 1U; i < base; ++i)
+    {
+        if (0U == (i % factor)) ++result;
+        if (0U == (((base + 1U) * i) % factor)) ++result;
+    }
+    for (number_t i = base; i < base_2; ++i)
+    {
+        if (0U == ((i / base) * base_2 + reversed[i]) % factor) ++result;
+        if (0U == (i * base_2 + reversed[i]) % factor) ++result;
+    }
+    for (number_t i = base_2; i < base_3; ++i)
+    {
+        if (0U == ((i / base) * base_3 + reversed[i]) % factor) ++result;
+    }
+    return result;
+}
+
 number_t palindrome_5(const number_t& factor, number_t* const reversed)
 {
     const number_t base   = 10ULL;
@@ -43,61 +67,62 @@ number_t palindrome_5(const number_t& factor, number_t* const reversed)
     return result;
 }
 
-number_t palindrome_5_bf(const number_t& factor, number_t* const reversed)
+number_t palindrome_16_bf(const number_t& factor)
 {
-    const number_t base   = 10ULL;
-    const number_t base_2 = base * base;
-    const number_t base_3 = base_2 * base;
+    constexpr number_t base   = 10ULL;
+    const number_t     up     = vs::power(base, 8U);
+    const number_t     shift  = up % factor;
+    number_t           result = 0U;
+    for (number_t i = up / base; i < up; ++i)
+    {
+        number_t n = (i * shift) % factor + vs::reverseNumber(i) % factor;
+        if (0U == (n % factor)) { ++result; }
+    }
+    return result;
+}
+
+number_t palindrome_16(const number_t& factor, const number_t* const reversed, number_t** const reversed_fixed)
+{
+    constexpr number_t base = 10ULL;
+
+    const order_t factor_order           = vs::countDigits(factor, base);
+    const order_t factor_effective_order = (1U == (factor_order & 1U)) ? factor_order - 1U : factor_order - 2U;
+    if ((factor_order < 3U) || (6U < factor_effective_order)) return palindrome_16_bf(factor);
+
+    number_t* ring = new number_t[factor];
+    for (number_t i = 0U; i < factor; ++i) { ring[i] = 0U; }
+
+    const order_t  ring_order       = (16U - factor_effective_order) >> 1U;
+    const number_t ring_count       = vs::power(base, ring_order);
+    const order_t  ring_shift_order = factor_effective_order + ring_order;
+    const number_t ring_shift       = vs::powerModular(base, ring_shift_order, factor);
+
+    for (number_t i = ring_count / base; i < ring_count; ++i)
+    { ring[((i * ring_shift) % factor + reversed[i] % factor) % factor]++; }
+
+    const order_t   half_factor_order = factor_effective_order >> 1U;
+    const number_t  middle_count      = vs::power(base, half_factor_order);
+    const number_t  middle_shift      = vs::complementModular(ring_count, factor);
+    const number_t* reversed_f        = reversed_fixed[half_factor_order - 1U];
 
     number_t result = 0U;
-    for (number_t i = 1U; i < base; ++i)
-    {
-        if (0U == (i % factor)) ++result;
-        if (0U == (((base + 1U) * i) % factor)) ++result;
-    }
-    for (number_t i = base; i < base_2; ++i)
-    {
-        if (0U == ((i / base) * base_2 + reversed[i]) % factor) ++result;
-        if (0U == (i * base_2 + reversed[i]) % factor) ++result;
-    }
-    for (number_t i = base_2; i < base_3; ++i)
-    {
-        if (0U == ((i / base) * base_3 + reversed[i]) % factor) ++result;
-    }
+    for (number_t i = 0U; i < middle_count; ++i)
+    { result += ring[(((i * middle_count) + reversed_f[i]) * middle_shift) % factor]; }
+    delete[] ring;
     return result;
 }
 
-number_t palindrom_10_7_19_16_b( )
+number_t palindrome_18_bf(const number_t& factor)
 {
-    constexpr number_t prime = 10000019ULL;
 
-    constexpr number_t ten_7  = 10000000ULL;
-    constexpr number_t ten_8  = ten_7 * 10U;
+    constexpr number_t base   = 10ULL;
+    const number_t     up     = vs::power(base, 9U);
+    const number_t     shift  = up % factor;
     number_t           result = 0U;
-    for (number_t i = ten_7; i < ten_8; ++i)
+    for (number_t i = up / base; i < up; ++i)
     {
-        number_t n = ((i * ten_8 % prime) % prime + vs::reverseNumber(i) % prime) % prime;
-        if (n == 0U)
-        {
-            // cout << i << vs::reverseNumber(i) << endl;
-            ++result;
-        }
-    }
-    return result;
-}
-
-number_t palindrom_10_7_19_18_b( )
-{
-    constexpr number_t prime = 10000019ULL;
-
-    constexpr number_t ten_7  = 10000000ULL;
-    constexpr number_t ten_8  = ten_7 * 10U;
-    constexpr number_t ten_9  = ten_8 * 10U;
-    number_t           result = 0U;
-    for (number_t i = ten_8; i < ten_9; ++i)
-    {
-        number_t n = ((i * ten_9 % prime) % prime + vs::reverseNumber(i) % prime) % prime;
-        if (n == 0U)
+        number_t n = (i * shift) % factor + vs::reverseNumber(i) % factor;
+        if (0U == (n % factor))
         {
             // cout << i << '\t' << vs::reverseNumber(i) << endl;
             ++result;
@@ -106,30 +131,34 @@ number_t palindrom_10_7_19_18_b( )
     return result;
 }
 
-number_t palindrom_10_7_19_16( )
+number_t palindrome_18(const number_t& factor, const number_t* reversed, number_t** const reversed_fixed)
 {
-    constexpr number_t prime = 10000019ULL;
-    constexpr number_t ten_4 = 10000ULL;
-    constexpr number_t ten_5 = ten_4 * 10U;
+    constexpr number_t base = 10ULL;
 
-    number_t* ring = new number_t[prime];
+    constexpr order_t factor_effective_order = 8U;
 
-    for (number_t i = 0U; i < prime; ++i) ring[i] = 0U;
+    number_t* ring = new number_t[factor];
 
-    const number_t ten_11 = vs::powerModular(10ULL, 11U, prime);
+    for (number_t i = 0U; i < factor; ++i) { ring[i] = 0U; }
 
-    for (number_t i = ten_4; i < ten_5; ++i) { ring[((i * ten_11) % prime + vs::reverseNumber(i)) % prime]++; }
+    const order_t  ring_order       = (18U - factor_effective_order) >> 1U;
+    const number_t ring_count       = vs::power(base, ring_order);
+    const order_t  ring_shift_order = factor_effective_order + ring_order;
+    const number_t ring_shift       = vs::powerModular(base, ring_shift_order, factor);
+
+    for (number_t i = ring_count / base; i < ring_count; ++i)
+    { ring[((i * ring_shift) % factor + reversed[i] % factor) % factor]++; }
+
+    constexpr order_t half_factor_order = factor_effective_order >> 1U;
+    const number_t    middle_count      = vs::power(base, half_factor_order);
+    const number_t    middle_shift      = vs::complementModular(ring_count, factor);
+    const number_t*   reversed_f        = reversed_fixed[half_factor_order - 1U];
 
     number_t result = 0U;
+    for (number_t i = 0U; i < middle_count; ++i)
+    { result += ring[(((i * middle_count) + reversed_f[i]) * middle_shift) % factor]; }
 
-    for (number_t i = 0U; i < 1000U; ++i)
-    {
-        number_t n  = i * 1000U + vs::reverseNumberFixedLength(i, 3U);
-        number_t c  = (n * ten_5) % prime;
-        number_t cc = vs::complementModular(c, prime);
-        result += ring[cc];
-    }
-
+    delete[] ring;
     return result;
 }
 
@@ -196,44 +225,6 @@ std::pair<number_t, number_t> palindrom_one_ring_two_order(const order_t&       
 
     delete[] ring;
 
-    return result;
-}
-
-number_t palindrom_10_7_19_18( )
-{
-    constexpr number_t prime = 10000019ULL;
-    constexpr number_t ten_6 = 1000000ULL;
-
-    number_t* ring_o = new number_t[prime];
-    number_t* ring_i = new number_t[prime];
-
-    for (number_t i = 0U; i < prime; ++i) { ring_o[i] = ring_i[i] = 0U; }
-
-    const number_t ten_15 = vs::powerModular(10ULL, 15U, prime);
-    const number_t ten_12 = vs::powerModular(10ULL, 12U, prime);
-
-    for (number_t i = 0ULL; i < 1000ULL; ++i)
-    {
-        if (i > 99UL) { ring_o[((i * ten_15) % prime + vs::reverseNumber(i) % prime) % prime]++; }
-        ring_i[((i * ten_12) % prime + (vs::reverseNumberFixedLength(i, 3U) * 1000U) % prime) % prime]++;
-    }
-
-    number_t result = 0U;
-    for (number_t i = 0U; i < 1000U; ++i)
-    {
-        number_t n  = (i * 1000U + vs::reverseNumberFixedLength(i, 3U));
-        number_t c  = (n * ten_6) % prime;
-        number_t cc = vs::complementModular(c, prime);
-        for (number_t j = 0; j < prime; ++j)
-        {
-            number_t index = (cc < j) ? (cc + prime - j) : cc - j;
-            result += ring_o[j] * ring_i[index];
-            // if ((ring_o[j] * ring_i[index]) != 0U)
-            // if ((i == 1) && (j == 1582014))
-            //{ cout << n << '\t' << j << '\t' << index << '\t' << ring_o[j] << '\t' << ring_i[index] << endl; }
-        }
-        // if (i == 1) break;
-    }
     return result;
 }
 
@@ -334,13 +325,57 @@ palindrom_two_ring(const order_t& order, const number_t& prime, number_t* middle
 
 int main( )
 {
-    number_t result = 0U;
+    constexpr number_t factor = 10000019ULL;
+    // constexpr number_t factor = 10019ULL;
+    constexpr number_t base   = 10ULL;
+    number_t           result = 0U;
+
+    auto s = high_resolution_clock::now( );
 
     constexpr order_t reversed_order = 7U;
     const number_t    reversed_count = vs::power(10ULL, reversed_order);
     number_t* const   reversed       = new number_t[reversed_count];
 
     for (number_t i = 0U; i < reversed_count; ++i) reversed[i] = vs::reverseNumber(i);
+
+    constexpr order_t reversed_fixed_order = 4U;
+    number_t**        reversed_fixed       = new number_t*[reversed_fixed_order];
+
+    number_t reversed_fixed_count = 1U;
+    for (order_t i = 0U; i < reversed_fixed_order; ++i)
+    {
+        reversed_fixed_count *= base;
+        reversed_fixed[i]    = new number_t[reversed_fixed_count];
+        reversed_fixed[i][0] = 0U;
+    }
+
+    reversed_fixed_count = 1U;
+    for (order_t i = 0U; i < reversed_fixed_order; ++i)
+    {
+        reversed_fixed_count *= base;
+        for (number_t j = reversed_fixed_count / base; j < reversed_fixed_count; ++j)
+        {
+            reversed_fixed[i][j] = reversed[j];
+            for (order_t k = i + 1U; k < reversed_fixed_order; ++k)
+            { reversed_fixed[k][j] = base * reversed_fixed[k - 1U][j]; }
+        }
+    }
+
+    cout << "[Preparation]" << '\t'
+         << duration_cast<std::chrono::milliseconds>(high_resolution_clock::now( ) - s).count( ) << endl;
+
+    s      = high_resolution_clock::now( );
+    result = palindrome_16(factor, reversed, reversed_fixed);
+
+    cout << result << '\t' << duration_cast<std::chrono::milliseconds>(high_resolution_clock::now( ) - s).count( )
+         << endl;
+
+    s      = high_resolution_clock::now( );
+    result = palindrome_18(factor, reversed, reversed_fixed);
+
+    cout << result << '\t' << duration_cast<std::chrono::milliseconds>(high_resolution_clock::now( ) - s).count( )
+         << endl;
+    return 0;
 
     constexpr order_t middle_pallindromes_count = 1000U;
 
@@ -356,7 +391,7 @@ int main( )
         pallindrome_6[i] = i * middle_pallindromes_count + reversed_3[i];
     }
 
-    auto s = high_resolution_clock::now( );
+    s = high_resolution_clock::now( );
 
     for (unsigned short i = 16U; i <= 20U; i += 2)
     {
@@ -514,5 +549,26 @@ int mainaa( )
         //   << (duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now( ) - s)).count( ) <<
         //   endl;
     }
+    return 0;
+}
+
+int residuals( )
+{
+    // number_t  prime = 109U;
+    number_t  prime = 10000019U;
+    number_t* a     = new number_t[prime];
+    for (number_t i = 0; i < prime; ++i) a[i] = (i * vs::inverseModular(19U, prime)) % prime;
+    number_t st = 1U;
+    number_t i  = st;
+    do
+    {
+        cout << i << ' ';
+        do
+        {
+            i = a[i];
+        } while (i > 19U);
+
+    } while (i != st);
+
     return 0;
 }
