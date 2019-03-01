@@ -1,10 +1,11 @@
-
 #include "number.hpp"
 
+#include <cassert>
 #include <chrono>
+#include <iomanip>
 #include <iostream>
-#include <typeinfo>
-#include <utility>
+
+unsigned int log_debug_flag = 0U;
 
 using std::cout;
 using std::endl;
@@ -110,7 +111,6 @@ number_t palindrome_16(const number_t& factor, const number_t* const reversed, n
 
 number_t palindrome_18_bf(const number_t& factor)
 {
-
     constexpr number_t base   = 10ULL;
     const number_t     up     = vs::power(base, 9U);
     const number_t     shift  = up % factor;
@@ -118,11 +118,7 @@ number_t palindrome_18_bf(const number_t& factor)
     for (number_t i = up / base; i < up; ++i)
     {
         number_t n = (i * shift) % factor + vs::reverseNumber(i) % factor;
-        if (0U == (n % factor))
-        {
-            // cout << i << '\t' << vs::reverseNumber(i) << endl;
-            ++result;
-        }
+        if (0U == (n % factor)) { ++result; }
     }
     return result;
 }
@@ -189,28 +185,180 @@ number_t palindrom_10_7_19_32( )
             result += ring_o[j] * ring_i[index];
         }
     }
+    delete[] ring_i;
+    delete[] ring_o;
     return result;
 }
 
-number_t palindrom_single_ring(const order_t&   order,
-                               const number_t&  factor,
-                               const number_t*  reversed,
-                               number_t** const reversed_fixed)
+void partition(const order_t& order,
+               const order_t& middle_order_max,
+               const order_t& ring_order_max,
+               const order_t& factor_order)
+{
+    const order_t complexity_error       = order + factor_order;
+    order_t       single_ring_complexity = complexity_error;
+    order_t       double_ring_complexity = complexity_error;
+
+    order_t single_ring_ring_order   = 0U;
+    order_t single_ring_middle_order = 0U;
+
+    order_t double_ring_ring_outer_order = 0U;
+    order_t double_ring_ring_inner_order = 0U;
+    order_t double_ring_middle_order     = 0U;
+
+    if ((order < ((ring_order_max + middle_order_max) << 1U) + 1U) && (1U < order))
+    {
+        single_ring_middle_order = order >> 2U;
+
+        if (middle_order_max < single_ring_middle_order) { single_ring_middle_order = middle_order_max; }
+
+        const order_t residual = (order % 4U);
+        if (((1U == residual) || (3U == residual)) && (middle_order_max < single_ring_middle_order + 1U))
+        { --single_ring_middle_order; }
+
+        if ((2U == residual) && (single_ring_middle_order < middle_order_max)) { ++single_ring_middle_order; }
+
+        single_ring_ring_order = (order - (single_ring_middle_order << 1U)) >> 1U;
+        single_ring_middle_order += (order & 1U);
+        single_ring_complexity = vs::max(single_ring_ring_order, single_ring_middle_order);
+
+        single_ring_ring_order <<= 1U;
+        single_ring_middle_order = order - single_ring_ring_order;
+
+        if (log_debug_flag)
+        {
+            cout << "ring_middle_ring:\t" << single_ring_complexity << '\t' << (single_ring_ring_order >> 1U) << '-'
+                 << (single_ring_middle_order >> 1U) << '-'
+                 << single_ring_middle_order - (single_ring_middle_order >> 1U) << '-' << (single_ring_ring_order >> 1U)
+                 << endl;
+        }
+    }
+
+    if ((order < (((ring_order_max << 1U) + middle_order_max) << 1U)) && (3U < order))
+    {
+        for (order_t middle = 0U; middle < (middle_order_max << 1U) + 1U; ++middle)
+        {
+            const order_t outer_order  = order - middle;
+            order_t       ring_i_order = outer_order >> 2U;
+            order_t       ring_o_order = ring_i_order;
+
+            const order_t residual = (outer_order % 4U);
+            if (2U == residual) ++ring_i_order;
+            if (3U == residual) ++ring_o_order;
+
+            order_t biggest_ring_order = ring_i_order + (outer_order & 1U);
+            if (biggest_ring_order > ring_order_max) continue;
+
+            order_t current_complexity = vs::max(biggest_ring_order, order_t(((middle + 1U) >> 1U) + factor_order));
+
+            if (current_complexity < double_ring_complexity)
+            {
+                double_ring_complexity       = current_complexity;
+                double_ring_ring_inner_order = ring_i_order;
+                double_ring_ring_outer_order = ring_o_order;
+                double_ring_middle_order     = middle;
+            }
+        }
+
+        double_ring_ring_outer_order <<= 1U;
+        double_ring_ring_inner_order = order - double_ring_middle_order - double_ring_ring_outer_order;
+
+        if (log_debug_flag)
+        {
+            cout << "ring_ring_middle_ring_ring:\t" << double_ring_complexity << '\t'
+                 << (double_ring_ring_outer_order >> 1U) << '-' << (double_ring_ring_inner_order >> 1U) << '-'
+                 << (double_ring_middle_order >> 1U) << '-'
+                 << (double_ring_middle_order - (double_ring_middle_order >> 1U)) << '-'
+                 << double_ring_ring_inner_order - (double_ring_ring_inner_order >> 1U) << '-'
+                 << (double_ring_ring_outer_order >> 1U) << endl;
+        }
+    }
+}
+
+void partition_even(const order_t& order,
+                    const order_t& middle_order_max,
+                    const order_t& ring_order_max,
+                    const order_t& factor_order)
+{
+    assert((0U == (order & 1U)) && "order must be even");
+
+    const order_t complexity_error       = order + factor_order;
+    order_t       single_ring_complexity = complexity_error;
+    order_t       double_ring_complexity = complexity_error;
+
+    order_t single_ring_middle_order = order >> 2U;
+
+    order_t double_ring_middle_order     = 0U;
+    order_t double_ring_ring_inner_order = 0U;
+
+    if ((order < ((ring_order_max + middle_order_max) << 1U) + 1U) && (1U < order))
+    {
+        if (middle_order_max < single_ring_middle_order) { single_ring_middle_order = middle_order_max; }
+
+        if ((2U == (order % 4U)) && (single_ring_middle_order < middle_order_max)) { ++single_ring_middle_order; }
+
+        order_t single_ring_ring_order = (order >> 1U) - single_ring_middle_order;
+        single_ring_complexity         = vs::max(single_ring_ring_order, single_ring_middle_order);
+
+        if (log_debug_flag)
+        {
+            cout << "ring_middle_ring:\t\t" << single_ring_complexity << '\t' << single_ring_ring_order << '-'
+                 << single_ring_middle_order << '-' << single_ring_middle_order << '-' << single_ring_ring_order
+                 << endl;
+        }
+    }
+
+    if ((order < (((ring_order_max << 1U) + middle_order_max) << 1U)) && (3U < order))
+    {
+        for (order_t middle = 0U; middle < middle_order_max + 1U; ++middle)
+        {
+            const order_t rings_order  = (order >> 1U) - middle;
+            order_t       ring_i_order = rings_order >> 1U;
+
+            if (1U == (rings_order & 1U)) ++ring_i_order;
+
+            if (ring_i_order > ring_order_max) continue;
+
+            order_t current_complexity = vs::max(ring_i_order, order_t(middle + factor_order));
+
+            if (current_complexity < double_ring_complexity)
+            {
+                double_ring_complexity       = current_complexity;
+                double_ring_ring_inner_order = ring_i_order;
+                double_ring_middle_order     = middle;
+            }
+        }
+
+        if (log_debug_flag)
+        {
+            order_t double_ring_ring_outer_order =
+                (order >> 1U) - double_ring_middle_order - double_ring_ring_inner_order;
+            cout << "ring_ring_middle_ring_ring:\t" << double_ring_complexity << '\t' << double_ring_ring_outer_order
+                 << '-' << double_ring_ring_inner_order << '-' << double_ring_middle_order << '-'
+                 << double_ring_middle_order << '-' << double_ring_ring_inner_order << '-'
+                 << double_ring_ring_outer_order << endl;
+        }
+    }
+}
+
+number_t palindrome_single_ring(const order_t&        order,
+                                const number_t&       factor,
+                                const number_t* const reversed,
+                                number_t** const      reversed_fixed)
 {
     constexpr number_t base             = 10ULL;
     constexpr order_t  middle_order_max = 4U;
 
     const order_t is_order_odd  = order & 1U;
     const order_t quarter_order = order >> 2U;
-    const order_t middle_order =
-        (quarter_order < (middle_order_max + 1U - is_order_odd)) ? (quarter_order) : (middle_order_max - is_order_odd);
+    const order_t middle_order  = (quarter_order + is_order_odd < (middle_order_max + 1U - is_order_odd))
+                                     ? (quarter_order)
+                                     : (middle_order_max - is_order_odd);
 
     number_t* ring = new number_t[factor];
     for (number_t i = 0U; i < factor; ++i) { ring[i] = 0U; }
 
-    // return (middle_order << 1U) + is_order_odd;
-
-    const order_t  ring_order       = (order >> 1U) - middle_order;
+    const order_t  ring_order       = (order - (middle_order << 1U) - is_order_odd) >> 1U;
     const number_t ring_count       = vs::power(base, ring_order);
     const order_t  ring_shift_order = order - ring_order;
     const number_t ring_shift       = vs::powerModular(base, ring_shift_order, factor);
@@ -232,40 +380,50 @@ number_t palindrom_single_ring(const order_t&   order,
     return result;
 }
 
-std::pair<number_t, number_t> palindrom_one_ring_two_order(const order_t&        order,
-                                                           const number_t&       prime,
-                                                           const number_t* const pallindrome_even,
-                                                           const number_t* const pallindrome_odd,
-                                                           const number_t* const reversed)
+number_t palindrome_single_ring_even(const order_t&               order,
+                                     const number_t&              factor,
+                                     const number_t* const        reversed,
+                                     const number_t* const* const reversed_fixed)
 {
-    constexpr order_t prime_order_odd = 5U;
-    const order_t     ring_lenght     = (order - prime_order_odd) >> 1U;
+    assert(0U == (order & 1U));
 
-    number_t* ring = new number_t[prime << 1U];
+    constexpr number_t base         = 10ULL;
+    constexpr order_t  middle_order = 4U;
 
-    const order_t  ring_shift_order      = prime_order_odd + ring_lenght;
-    const number_t ring_shift_multiplier = vs::powerModular(10ULL, ring_shift_order, prime);
-    const number_t ring_upper_limit      = vs::power(10ULL, ring_lenght);
+    number_t* ring_odd  = new number_t[factor];
+    number_t* ring_even = new number_t[factor];
+    for (number_t i = 0U; i < factor; ++i) { ring_odd[i] = ring_even[i] = 0U; }
 
-    for (number_t i = ring_upper_limit / 10U; i < ring_upper_limit; ++i)
+    const order_t  ring_order       = (order >> 1U) - middle_order;
+    const order_t  ring_shift_order = order - ring_order - 1U;
+    const number_t ring_shift       = vs::powerModular(base, ring_shift_order, factor);
+    const number_t ring_count       = vs::power(base, ring_order);
+
+    for (number_t i = ring_count / base; i < ring_count; ++i)
     {
-        const number_t t = (i * ring_shift_multiplier) % prime;
-        ring[(t + reversed[i]) % prime]++;
-        ring[prime + (t * 10ULL + reversed[i]) % prime]++;
+        const number_t left_ring = (i * ring_shift) % factor;
+        ring_odd[(left_ring + reversed[i]) % factor]++;
+        ring_even[(left_ring * base + reversed[i]) % factor]++;
     }
 
-    const number_t middle_shift_multiplier = vs::complementModular(vs::powerModular(10ULL, ring_lenght, prime), prime);
-    std::pair<number_t, number_t> result(0U, 0U);
+    const number_t        middle_count = vs::power(base, middle_order);
+    const number_t        middle_shift = vs::complementModular(ring_count, factor);
+    const number_t* const reversed_f   = reversed_fixed[middle_order - 1U];
 
-    for (number_t i = 0U; i < 1000UL; ++i)
+    number_t result_odd  = 0U;
+    number_t result_even = 0U;
+    for (number_t i = 0U; i < middle_count; ++i)
     {
-        result.first += ring[(pallindrome_odd[i] * middle_shift_multiplier) % prime];
-        result.second += ring[prime + (pallindrome_even[i] * middle_shift_multiplier) % prime];
+        result_odd += ring_odd[((((i / base) * middle_count + reversed_f[i]) % factor) * middle_shift) % factor];
+        result_even += ring_even[(((i * middle_count + reversed_f[i]) % factor) * middle_shift) % factor];
     }
 
-    delete[] ring;
+    if (log_debug_flag) cout << result_odd << '\t' << result_even << endl;
 
-    return result;
+    delete[] ring_odd;
+    delete[] ring_even;
+
+    return result_odd + result_even;
 }
 
 number_t
@@ -275,8 +433,6 @@ palindrom_two_ring(const order_t& order, const number_t& prime, number_t* middle
 
     const order_t rings_length = (order - prime_effective_length) >> 1U;
 
-    // if (rings_length < 8U) return palindrom_one_ring(order, prime, middle_pallindrome, reversed);
-
     const order_t ring_i_length = rings_length >> 1U;
     const order_t ring_o_length = rings_length - ring_i_length;
 
@@ -284,10 +440,6 @@ palindrom_two_ring(const order_t& order, const number_t& prime, number_t* middle
     const order_t shift_il = shift_ol - ring_i_length;
     const order_t shift_ir = ring_o_length;
     const order_t shift_m  = rings_length;
-
-    // cout << ring_o_length << '\t' << shift_ol << '\t' << ring_i_length << '\t' << shift_il << '\t'
-    //     << prime_effective_length << '\t' << shift_m << '\t' << ring_i_length << '\t' << shift_ir << '\t'
-    //     << ring_o_length << endl;
 
     number_t* ring_o = new number_t[prime];
     number_t* ring_i = new number_t[prime];
@@ -325,10 +477,104 @@ palindrom_two_ring(const order_t& order, const number_t& prime, number_t* middle
     return result;
 }
 
+number_t palindrome_double_ring_even(const order_t&               order,
+                                     const number_t&              factor,
+                                     const number_t* const        reversed,
+                                     const number_t* const* const reversed_fixed)
+{
+    constexpr number_t base           = 10ULL;
+    constexpr order_t  ring_order_max = 7U;
+    const order_t middle_order = (order < (ring_order_max << 2U) + 1U) ? 0U : ((order - (ring_order_max << 2U)) >> 1U);
+
+    number_t* ring_outer_odd  = new number_t[factor];
+    number_t* ring_outer_even = new number_t[factor];
+    number_t* ring_inner_odd  = new number_t[factor];
+    number_t* ring_inner_even = new number_t[factor];
+
+    for (number_t i = 0U; i < factor; ++i)
+    { ring_outer_odd[i] = ring_outer_even[i] = ring_inner_odd[i] = ring_inner_even[i] = 0U; }
+
+    order_t ring_outer_order = ring_order_max;
+    order_t ring_inner_order = ring_order_max;
+
+    if (0U == middle_order)
+    {
+        ring_outer_order = (order >> 2U);
+        ring_inner_order = (order >> 1U) - ring_outer_order;
+    }
+
+    const order_t ring_inner_shift_right_order = ring_outer_order;
+    const order_t ring_outer_shift_left_order  = order - ring_outer_order - 1U;
+    const order_t middle_shift_order           = ring_outer_order + ring_inner_order;
+    const order_t ring_inner_shift_left_order =
+        (0U == middle_order) ? middle_shift_order : ring_outer_shift_left_order - ring_inner_order;
+
+    if (log_debug_flag)
+    {
+        cout << ring_outer_order << '\t' << ring_outer_shift_left_order << '\t'
+             << ((!middle_order) ? (ring_inner_order - 1U) : ring_inner_order) << '\t' << ring_inner_shift_left_order
+             << '\t' << ((!middle_order) ? middle_order : middle_order - 1U) << '\t' << middle_shift_order << '\t'
+             << ring_inner_order << '\t' << ring_inner_shift_right_order << '\t' << ring_outer_order << endl;
+    }
+
+    const number_t ring_inner_shift_right = vs::powerModular(base, ring_inner_shift_right_order, factor);
+    const number_t ring_outer_shift_left  = vs::powerModular(base, ring_outer_shift_left_order, factor);
+    const number_t middle_shift = vs::complementModular(vs::powerModular(base, middle_shift_order, factor), factor);
+    const number_t ring_inner_shift_left = vs::powerModular(base, ring_inner_shift_left_order, factor);
+
+    const number_t ring_inner_count = vs::power(base, ring_inner_order);
+    const number_t ring_outer_count = vs::power(base, ring_outer_order);
+
+    for (number_t i = ring_outer_count / base; i < ring_outer_count; ++i)
+    {
+        const number_t left_outer = (i * ring_outer_shift_left) % factor;
+        ring_outer_odd[(left_outer + reversed[i]) % factor]++;
+        ring_outer_even[(left_outer * base + reversed[i]) % factor]++;
+    }
+
+    for (number_t i = 0U; i < ring_inner_count; ++i)
+    {
+        const number_t r = (vs::reverseNumberFixedLength(i, ring_inner_order) * ring_inner_shift_right) % factor;
+        if (0U == middle_order)
+        {
+            ring_inner_odd[(((i / base) * ring_inner_shift_left) + r) % factor]++;
+            ring_inner_even[((i * ring_inner_shift_left) + r) % factor]++;
+        }
+        else
+        {
+            ring_inner_odd[(i * ring_inner_shift_left + r) % factor]++;
+            ring_inner_even[(i * base * ring_inner_shift_left + r) % factor]++;
+        }
+    }
+
+    number_t              middle_count = vs::power(base, middle_order);
+    const number_t* const reversed_f   = reversed_fixed[(0U == middle_order) ? 0U : middle_order - 1U];
+
+    number_t result_odd  = 0U;
+    number_t result_even = 0U;
+    for (number_t i = 0U; i < middle_count; ++i)
+    {
+        number_t c_odd  = (((i / base) * middle_count + reversed_f[i]) * middle_shift) % factor;
+        number_t c_even = ((i * middle_count + reversed_f[i]) * middle_shift) % factor;
+
+        for (number_t j = 0U; j < factor; ++j)
+        {
+            result_odd += ring_outer_odd[j] * ring_inner_odd[((c_odd < j) ? (c_odd + factor) : c_odd) - j];
+            result_even += ring_outer_even[j] * ring_inner_even[((c_even < j) ? (c_even + factor) : c_even) - j];
+        }
+    }
+    if (log_debug_flag) cout << result_odd << '\t' << result_even << endl;
+
+    delete[] ring_outer_odd;
+    delete[] ring_outer_even;
+    delete[] ring_inner_odd;
+    delete[] ring_inner_even;
+    return result_even + result_odd;
+}
+
 int main( )
 {
     constexpr number_t factor = 10000019ULL;
-    // constexpr number_t factor = 10019ULL;
     constexpr number_t base   = 10ULL;
     number_t           result = 0U;
 
@@ -362,224 +608,38 @@ int main( )
             { reversed_fixed[k][j] = base * reversed_fixed[k - 1U][j]; }
         }
     }
-
-    cout << "[Preparation]" << '\t'
-         << duration_cast<std::chrono::milliseconds>(high_resolution_clock::now( ) - s).count( ) << endl;
+    number_t prp = duration_cast<std::chrono::milliseconds>(high_resolution_clock::now( ) - s).count( );
+    cout << "[Preparation]\t" << prp << endl;
 
     number_t total_ticks = 0U;
-    for (order_t i = 15U; i < 21U; ++i)
+    for (order_t i = 16U; i < 23U; i += 2U)
     {
         s = high_resolution_clock::now( );
 
-        result     = palindrom_single_ring(i, factor, reversed, reversed_fixed);
+        number_t r = palindrome_single_ring_even(i, factor, reversed, reversed_fixed);
+        result += r;
         number_t d = duration_cast<std::chrono::milliseconds>(high_resolution_clock::now( ) - s).count( );
+
         total_ticks += d;
-        cout << '[' << i << "]\t" << result << '\t' << d << '\t' << total_ticks << endl;
-
-        // s      = high_resolution_clock::now( );
-        // result = palindrome_18(factor, reversed, reversed_fixed);
-
-        // cout << result << '\t' << duration_cast<std::chrono::milliseconds>(high_resolution_clock::now( ) - s).count(
-        // )
-        //     << endl;
+        cout << '[' << i - 1U << '-' << i << "]\t" << std::setw(10) << r << std::setw(11) << result << '\t' << d << '\t'
+             << total_ticks << endl;
     }
-    //std::chrono::milliseconds ms(total_ticks);
-    //cout << duration_cast<std::chrono::duration<double>>(ms).count( ) << endl;
-
-    return 0;
-
-    constexpr order_t middle_pallindromes_count = 1000U;
-
-    number_t* reversed_3 = new number_t[middle_pallindromes_count];
-    for (order_t i = 0U; i < middle_pallindromes_count; ++i) { reversed_3[i] = vs::reverseNumberFixedLength(i, 3U); }
-
-    number_t* pallindrome_5 = new number_t[middle_pallindromes_count];
-    number_t* pallindrome_6 = new number_t[middle_pallindromes_count];
-
-    for (order_t i = 0U; i < middle_pallindromes_count; ++i)
+    for (order_t i = 24U; i < 33U; i += 2)
     {
-        pallindrome_5[i] = (i / 10U) * middle_pallindromes_count + reversed_3[i];
-        pallindrome_6[i] = i * middle_pallindromes_count + reversed_3[i];
+        s = high_resolution_clock::now( );
+
+        number_t r = palindrome_double_ring_even(i, factor, reversed, reversed_fixed);
+        result += r;
+        number_t d = duration_cast<std::chrono::milliseconds>(high_resolution_clock::now( ) - s).count( );
+
+        total_ticks += d;
+        cout << '[' << i - 1U << '-' << i << "]\t" << std::setw(10) << r << std::setw(11) << result << '\t' << d << '\t'
+             << total_ticks << endl;
     }
 
-    s = high_resolution_clock::now( );
-
-    for (unsigned short i = 16U; i <= 20U; i += 2)
-    {
-        auto s = high_resolution_clock::now( );
-        // number_t step =
-        // palindrom_two_ring(i, 10000019ULL, (((i & 1U) == 1U)) ? (pallindrome_5) : (pallindrome_6), reversed);
-
-        auto result_p = palindrom_one_ring_two_order(i, 10000019ULL, pallindrome_6, pallindrome_5, reversed);
-
-        // a += step;
-        result += result_p.first + result_p.second;
-
-        auto step_duration = high_resolution_clock::now( ) - s;
-        auto milliseconds  = duration_cast<std::chrono::milliseconds>(step_duration).count( );    // % 1000U;
-        // auto seconds       = duration_cast<std::chrono::seconds>(step_duration).count( ) % 60U;
-        // auto minutes       = duration_cast<std::chrono::minutes>(step_duration).count( );
-        cout << '[' << i - 1U << "]\t" << result_p.first << endl;
-        cout << '[' << i << "]\t" << result_p.second << "\t\t" << milliseconds
-             << endl; /*<< minutes << ':' << seconds << '.'*/
-    }
-
-    auto total        = high_resolution_clock::now( ) - s;
-    auto milliseconds = duration_cast<std::chrono::milliseconds>(total).count( );    //% 1000U;
-    // auto seconds      = duration_cast<std::chrono::seconds>(total).count( ) % 60U;
-    // auto minutes      = duration_cast<std::chrono::minutes>(total).count( );
-    cout << result << '\t' << milliseconds << endl;    // minutes << ':' << seconds << '.' <<
-    s      = high_resolution_clock::now( );
-    result = 0U;
-    for (unsigned short i = 15U; i <= 20U; ++i)
-    {
-        auto     s = high_resolution_clock::now( );
-        number_t step =
-            palindrom_two_ring(i, 10000019ULL, (((i & 1U) == 1U)) ? (pallindrome_5) : (pallindrome_6), reversed);
-
-        // auto result = palindrom_one_ring_two_order(i, 10000019ULL, pallindrome_6, pallindrome_5, reversed);
-
-        result += step;
-        // a += result.first + result.second;
-
-        auto step_duration = high_resolution_clock::now( ) - s;
-        auto milliseconds  = duration_cast<std::chrono::milliseconds>(step_duration).count( );    //% 1000U;
-        // auto seconds       = duration_cast<std::chrono::seconds>(step_duration).count( ) % 60U;
-        // auto minutes       = duration_cast<std::chrono::minutes>(step_duration).count( );
-        // cout << '[' << i - 1U << "]\t" << result.second << endl;
-        cout << '[' << i << "]\t" << step << "\t\t" << milliseconds << endl;    // << minutes << ':' << seconds << '.'
-    }
-    total        = high_resolution_clock::now( ) - s;
-    milliseconds = duration_cast<std::chrono::milliseconds>(total).count( );    // % 1000U;
-    // seconds      = duration_cast<std::chrono::seconds>(total).count( ) % 60U;
-    // minutes      = duration_cast<std::chrono::minutes>(total).count( );
-    cout << result << '\t' << milliseconds << endl;    // << minutes << ':' << seconds << '.'
-
-    delete[] pallindrome_5;
-    delete[] pallindrome_6;
-    delete[] reversed;
-
-    return 0;
-}
-
-int mainaa( )
-{
-    using T = unsigned long long;
-
-    // constexpr char o_sep = '\t';
-
-    // constexpr T prime_e = 7U;
-    // constexpr T prime_d = 19U;
-    constexpr T base  = 10U;
-    constexpr T prime = 10000019ULL;    // power(base, prime_e) + prime_d;
-
-    auto s = high_resolution_clock::now( );
-
-    const T ten_6 = 1000000ULL;
-    const T ten_7 = 10000000ULL;
-
-    unsigned* a1 = new unsigned[prime];
-    unsigned* a2 = new unsigned[prime];
-
-    T* inversedNumbers = new T[ten_7];
-
-    for (T i = 0U; i < prime; ++i) { a1[i] = a2[i] = 0U; }
-    for (T i = 0U; i < ten_7; ++i) { inversedNumbers[i] = vs::reverseNumberFixedLength(i, 7U); }
-
-    T ten_19 = vs::powerModular(base, 19U, prime);
-    T ten_25 = vs::powerModular(base, 25U, prime);
-
-    for (T i = 1U; i < ten_7; ++i)
-    {
-        if (i < ten_6) { a2[((i * ten_7) % prime + (inversedNumbers[i] * ten_19) % prime) % prime]++; }
-
-        a1[(i % prime + (inversedNumbers[i] * ten_25) % prime) % prime]++;
-    }
-
-    // for (T i = 0U; i < prime; ++i) { cout << a1[i] << o_sep << a2[i] << endl; }
-
-    cout << (duration_cast<std::chrono::milliseconds>(high_resolution_clock::now( ) - s)).count( ) << endl;
-    return 0;
-
-    const T ten_4 = vs::power(base, 4ULL);
-    const T ten_5 = vs::power(base, 5ULL);
-
-    const T ten_17 = vs::powerModular(base, 17ULL, prime);
-    const T ten_27 = vs::powerModular(base, 27ULL, prime);
-
-    const T one_n    = vs::complementModular(1ULL, prime);
-    const T ten_7_n  = vs::complementModular(ten_7, prime);
-    const T ten_17_n = vs::complementModular(ten_17, prime);
-    const T ten_27_n = vs::complementModular(ten_27, prime);
-
-    const T ten_5_r = vs::inverseModular(ten_5, prime);
-
-    const T ka1 = (ten_27_n * ten_5_r) % prime;
-    const T kb1 = (one_n * ten_5_r) % prime;
-
-    const T ka2 = (ten_17_n * ten_5_r) % prime;
-
-    const T ka3 = (ten_7_n * ten_5_r) % prime;
-
-    T* inversed   = new T[ten_5 - ten_4];
-    T* inversed_m = new T[ten_5 - ten_4];
-
-    T counter = 0U;
-
-    for (T a1 = ten_4; a1 < ten_5; a1++)
-    {
-        inversed[a1 - ten_4]   = vs::reverseNumber(a1);
-        inversed_m[a1 - ten_4] = (kb1 * inversed[a1 - ten_4]) % prime;
-    }
-
-    for (T a1 = ten_4; a1 < ten_5; a1++)
-    {
-        // auto s = chrono::high_resolution_clock::now();
-        T z1 = ((ka1 * a1) % prime + inversed_m[a1 - ten_4]) % prime;
-        z1 *= ten_5_r;
-        z1 %= prime;
-
-        for (T a2 = ten_5; a2 < ten_5; a2++)
-        {
-            T z2 = ((ka2 * a2) % prime + inversed_m[a2 - ten_4] + z1) % prime;
-            z2 *= ten_5_r;
-            z2 %= prime;
-
-            for (T a3 = ten_4; a3 < ten_5; a3++)
-            {
-                T z3 = ((ka3 * a3) % prime + inversed_m[a3 - ten_4] + z2) % prime;
-                if ((z3 < base * base) && ((z3 % base) == (z3 / base)))
-                {
-                    counter++;
-                    // cout << a1 << '\t' << a2 << '\t' << a3 << '\t' << z3 << '\t' << inversed[a3 - ten_4] << '\t'
-                    //   << inversed[a2 - ten_4] << '\t' << inversed[a1 - ten_4] << endl;
-                }
-            }
-        }
-        // cout << (a1 - ten_4) << "\t" << counter << "\t"
-        //   << (duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now( ) - s)).count( ) <<
-        //   endl;
-    }
-    return 0;
-}
-
-int residuals( )
-{
-    // number_t  prime = 109U;
-    number_t  prime = 10000019U;
-    number_t* a     = new number_t[prime];
-    for (number_t i = 0; i < prime; ++i) a[i] = (i * vs::inverseModular(19U, prime)) % prime;
-    number_t st = 1U;
-    number_t i  = st;
-    do
-    {
-        cout << i << ' ';
-        do
-        {
-            i = a[i];
-        } while (i > 19U);
-
-    } while (i != st);
-
+    cout << "[Calculation]\t"
+         << duration_cast<std::chrono::duration<double>>(std::chrono::milliseconds(total_ticks)).count( ) << endl;
+    cout << "[Total]\t\t"
+         << duration_cast<std::chrono::duration<double>>(std::chrono::milliseconds(total_ticks + prp)).count( ) << endl;
     return 0;
 }

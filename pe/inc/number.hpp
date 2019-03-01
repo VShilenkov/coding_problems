@@ -10,6 +10,12 @@ typedef unsigned short int ns_length_t;
 
 constexpr ns_base_t default_base = 10U;
 
+template<typename T>
+inline T max(const T& l, const T& r)
+{
+    return ((l < r) ? (r) : (l));
+}
+
 template<typename T, typename B = ns_base_t>
 inline bool isDigit(const T& number, const B& base = default_base)
 {
