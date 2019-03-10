@@ -4,20 +4,19 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/pe/inc"
+                "${workspaceFolder}/inc"
             ],
             "defines": [
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE"
             ],
-            "windowsSdkVersion": "10.0.17134.0",
-            "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/bin/cl.exe",
+            "compilerPath": "C:/MinGW/bin/g++.exe",
             "cStandard": "c11",
-            "cppStandard": "c++17",
-            "intelliSenseMode": "msvc-x64",
+            "cppStandard": "c++11",
+            "intelliSenseMode": "gcc-x64",
             "configurationProvider": "vector-of-bool.cmake-tools",
-            "compileCommands": "${workspaceFolder}/build/Win MinGW Clang 7.0.0/MinGW Makefiles/Release/compile_commands.json"
+            "compileCommands": "${vector-of-bool.cmake-tools.buildDirectory}/compile_commands.json"
         }
     ],
     "version": 4

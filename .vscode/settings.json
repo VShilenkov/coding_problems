@@ -1,5 +1,5 @@
 {
-    "cmake.buildDirectory": "${workspaceRoot}/build/${buildKit}/${generator}/${buildType}",
+    "cmake.buildDirectory": "${workspaceRoot}/build/${buildKit}/${buildType}",
     "cmake.configureOnOpen": true,
 
     "editor.emptySelectionClipboard": false,
@@ -51,7 +51,8 @@
         "xstddef": "cpp",
         "xstring": "cpp",
         "xtr1common": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "algorithm": "cpp"
     }
 
 }
