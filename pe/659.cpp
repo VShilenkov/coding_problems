@@ -140,11 +140,6 @@ void naive( )
     ull_t* factors_packed_cache = init_cache( );
 
     set<ull_t> primes_packed{1, 3, 4};
-    //{
-    //    1, 3, 4, 7, 9, 10, 13, 15, 18, 22, 24, 25, 27, 28, 34, 37, 39, 43, 45, 48, 49, 57, 58, 60, 64, 67, 69, 70, 73,
-    //        78, 79, 84, 87, 88, 93, 97, 99, 100, 102, 105, 108, 112, 114, 115, 127, 130, 135, 139, 142, 144, 148, 150,
-    //        153, 154, 160, 163, 165, 168, 169, 175, 177, 183
-    //};
 
     constexpr ull_t    prime_packed_lowest = 1ULL;
     long_number<ull_t> sum(prime_packed_lowest);
@@ -197,9 +192,7 @@ void naive( )
             }
         }
         sum += prime_packed_highest;
-#if 0
-        cout << unpack(prime_packed_highest) << endl;
-#endif
+
         if (log_enabled && (0U == (i % log_step)))
         {
             const duration_t::rep t = duration_cast<duration_t>(high_resolution_clock::now( ) - start_point).count( );
@@ -236,14 +229,18 @@ int main( )
     for (ull_t i = 1U; i < K; ++i)
     {
         const ull_t p = sequence[i];
-        if (1U < p)
+        if (1U < p)    // after all previous iterations <i - sequnce[i] - prime
         {
-            for (ull_t j = i, jj = p - i; j < K; j += p, jj += p)
+            for (ull_t j = i, jj = p - i; j < K;
+                 j += p, jj += p)    // j - first square root of -1 mod p, jj - srcond one
             {
-                while (0U == (sequence[j] % p)) { sequence[j] /= p; }
-                if (factor_highest[j] < p) { factor_highest[j] = p; }
+                while (0U == (sequence[j] % p))
+                {
+                    sequence[j] /= p;
+                }    // discard power of p in all further numbers devidable by p in the first root line
+                if (factor_highest[j] < p) { factor_highest[j] = p; }    // update value of highest primary devisor
 
-                if (jj < K)
+                if (jj < K)    // same for the second root
                 {
                     while (0U == (sequence[jj] % p)) { sequence[jj] /= p; }
                     if (factor_highest[jj] < p) { factor_highest[jj] = p; }
@@ -254,7 +251,7 @@ int main( )
 
     delete[] sequence;
 
-    long_number<ull_t> sum(0);
+    long_number<ull_t> sum(0);    // accumulate all the highest prime factors of each number
     for (ull_t i = 1U; i < K; ++i) { sum += factor_highest[i]; }
 
     delete[] factor_highest;
@@ -262,95 +259,3 @@ int main( )
     cout << sum << '\t' << duration_cast<duration_t>(high_resolution_clock::now( ) - s).count( ) << endl;
     return 0;
 }
-
-/*
-
-    primes_packed.insert(3ULL);
-        set<ull_t>::const_iterator upper_bound = primes_packed.upper_bound(prime_packed_treshold);
-        if (upper_bound == primes_packed.cend()) --upper_bound;
-        set<ull_t>::const_reverse_iterator prime_packed_ri(upper_bound);
-        while(prime_packed_ri != primes_packed.crend())
-        {
-            const ull_t& prime_packed = *prime_packed_ri;
-            if (prime_packed > number_packed) break;
-            const ull_t prime = (prime_packed << 2U) + 1U;
-
-            if (prime_packed == (number_packed % prime))
-            {
-                if (prime_packed_highest < prime_packed) { prime_packed_highest = prime_packed; }
-                do
-                {
-                    if (number_packed < cache_size)
-                    {
-                        const ull_t& factor_packed_cached = factors_packed_cache[number_packed];
-                        if (0U == factor_packed_cached) { if (prime_packed > prime_packed_highest)
-   factor_packed_seria.push_back(number_packed); } else
-                        {
-                            if (prime_packed_highest < factor_packed_cached)
-                            { prime_packed_highest = factor_packed_cached; }
-                            number_packed = 0U;
-                        }
-                    }
-                    number_packed /= prime;
-                    prime_packed_treshold /= square_roots[prime_packed];
-
-
-                } while (prime_packed == (number_packed % prime));
-                prime_packed_ri = set<ull_t>::const_reverse_iterator(primes_packed.upper_bound(prime_packed_treshold));
-            }
-            else
-            {
-                ++prime_packed_ri;
-            }
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        }
-
-
-        if ((0U != number_packed) && (number_packed > prime_packed_highest))
-        {
-            prime_packed_highest = number_packed;
-            primes_packed.insert(primes_packed.cend( ), prime_packed_highest);
-        }
-
-        */
