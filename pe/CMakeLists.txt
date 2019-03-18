@@ -1,2 +1,2 @@
-add_executable(659 659.cpp)
-#target_include_directories(657 PUBLIC ../inc)
+add_executable(pe 017.cpp)
+target_include_directories(pe PUBLIC ../inc)
