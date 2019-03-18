@@ -6,10 +6,6 @@
 
 using std::cout;
 using std::endl;
-using std::list;
-using std::ostream;
-using std::set;
-using std::setfill;
 using std::setw;
 using std::chrono::duration_cast;
 using std::chrono::high_resolution_clock;
@@ -57,7 +53,7 @@ public:
     }
 
     template<typename U>
-    friend ostream& operator<<(ostream&, const long_number<U>&);
+    friend std::ostream& operator<<(std::ostream&, const long_number<U>&);
 
 private:
     inline void normalize( )
@@ -71,13 +67,14 @@ private:
 };
 
 template<typename T>
-ostream& operator<<(ostream& os, const long_number<T>& n)
+std::ostream& operator<<(std::ostream& os, const long_number<T>& n)
 {
     os << setw(4) << n.high / 1'000'000ULL << '\'';
     char f = os.fill('0');
     os << setw(3) << (n.high % 1'000'000ULL) / 1'000ULL << '\'' << setw(3) << n.high % 1'000ULL << '\'';
     os << setw(3) << n.low / 1'000'000ULL << '\'' << setw(3) << (n.low % 1'000'000ULL) / 1'000ULL << '\'' << setw(3)
-       << n.low % 1'000ULL << setfill(f);
+       << n.low % 1'000ULL;
+    os.fill(f);
     return os;
 }
 
@@ -98,11 +95,11 @@ T* init_cache(const T& size = cache_size)
 }
 
 template<typename T = ull_t>
-inline void in_cache(T&       number_packed,
-                     T*       factors_packed_cache,
-                     list<T>& factor_packed_seria,
-                     T&       prime_packed_highest,
-                     const T& size = cache_size)
+inline void in_cache(T&            number_packed,
+                     T*            factors_packed_cache,
+                     std::list<T>& factor_packed_seria,
+                     T&            prime_packed_highest,
+                     const T&      size = cache_size)
 {
     if (number_packed < size)
     {
@@ -139,7 +136,7 @@ void naive( )
     ull_t* square_roots         = init_square_roots( );
     ull_t* factors_packed_cache = init_cache( );
 
-    set<ull_t> primes_packed{1, 3, 4};
+    std::set<ull_t> primes_packed{1, 3, 4};
 
     constexpr ull_t    prime_packed_lowest = 1ULL;
     long_number<ull_t> sum(prime_packed_lowest);
@@ -147,7 +144,7 @@ void naive( )
     high_resolution_clock::time_point start_point        = high_resolution_clock::now( );
     duration_t::rep                   previous_step_long = 0.;
 
-    list<ull_t> factor_packed_seria;
+    std::list<ull_t> factor_packed_seria;
 
     for (ull_t i = 2U; i <= k_count; ++i)
     {
