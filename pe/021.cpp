@@ -1,6 +1,3 @@
-//#include "number.hpp"
-
-#include <cmath>
 #include <iostream>
 
 using T = unsigned int;
@@ -21,24 +18,26 @@ int main( )
     {
         if (numbers[i] != 1U)
         {
-            T nn = numbers[i];
-            for (T j = nn; j <= N; j += nn)
+            const T prime = numbers[i];
+            for (T j = prime; j <= N; j += prime)
             {
                 T nominator = 1U;
 
-                while (numbers[j] % i == 0U)
+                while (numbers[j] % prime == 0U)
                 {
-                    nominator *= i;
-                    numbers[j] /= i;
+                    nominator *= prime;
+                    numbers[j] /= prime;
                 }
-                nominator = nominator * i - 1U;
+
+                nominator *= i;
+                --nominator;
                 sigma1[j] *= nominator;
-                sigma1[j] /= (i - 1U);
+                sigma1[j] /= (prime - 1U);
             }
         }
     }
 
-    for (T i = 1U; i <= N; ++i) { sigma1[i] -= i; }
+    for (T i = 2U; i <= N; ++i) { sigma1[i] -= i; }
     T sum = 0U;
     for (T i = 2U; i <= N; ++i)
     {
