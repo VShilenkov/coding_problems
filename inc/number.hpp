@@ -185,6 +185,22 @@ inline T shiftLeftModular(const T& number, const S& shift, const M& modulo, cons
     return ((number % modulo) * powerModular<T, S, M>(base, shift, modulo)) % modulo;
 }
 
+template<typename T>
+inline T integerSquareRootNewton(const T& number)
+{
+    static_assert(std::is_integral<T>::value && std::is_unsigned<T>::value,
+                  "number type must be unsigned integer type");
+    T x = number;
+    T y = (x + number / x) >> 1U;
+
+    while ((y - x) > 1U)
+    {
+        x = y;
+        y = (x + number / x) >> 1U;
+    }
+    return x;
+}
+
 }    // namespace vs
 
 #endif    // VS_NUMBER_HPP
