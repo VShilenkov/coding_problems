@@ -6,8 +6,6 @@ if (NOT WIN32)
     set(CMAKE_EXECUTABLE_SUFFIX_C   ".out" CACHE STRING "" FORCE)
 endif()
 
-add_compile_options("-Wall")
-add_compile_options("-Wextra")
-add_compile_options("-Wpedantic") 
+add_compile_options("-m64")
 
 add_subdirectory(pe)

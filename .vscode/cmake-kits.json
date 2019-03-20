@@ -1,16 +1,10 @@
 [
   {
     "name": "Toolchain_GCC",
-    "toolchainFile" : "${workspaceFolder}\\.cmake\\toolchain\\gcc_toolchain.cmake",
-    "preferredGenerator": {
-      "name": "MinGW Makefiles"
-    }
+    "toolchainFile": "${workspaceFolder}/.cmake/toolchain/gcc_toolchain.cmake"
   },
   {
     "name": "Toolchain_Clang",
-    "toolchainFile": "${workspaceFolder}\\.cmake\\toolchain\\clang_toolchain.cmake",
-    "preferredGenerator": {
-      "name": "MinGW Makefiles"
-    }
+    "toolchainFile": "${workspaceFolder}/.cmake/toolchain/clang_toolchain.cmake"
   }
 ]
