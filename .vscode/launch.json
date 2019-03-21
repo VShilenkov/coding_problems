@@ -5,14 +5,15 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${vector-of-bool.cmake-tools.buildDirectory}/pe/659.exe",
+            "program": "${command:cmake.launchTargetPath}",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${vector-of-bool.cmake-tools.buildDirectory}/pe",
+            "cwd": "${workspaceFolder}/build",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
-            //"miDebuggerPath": "C:/MinGW/bin/gdb.exe",
+            "miDebuggerPath": "C:/mingw-w64/mingw64/bin/gdb.exe",
+            "miDebuggerArgs": "-q",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",

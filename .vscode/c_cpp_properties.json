@@ -1,22 +1,28 @@
 {
     "configurations": [
         {
-            "name": "Win32",
+            "name": "Win32_MinGW-x64",
             "includePath": [
-                "${workspaceFolder}/**",
                 "${workspaceFolder}/inc"
             ],
             "defines": [
-                "_DEBUG",
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "C:/MinGW/bin/g++.exe",
-            "cStandard": "c11",
-            "cppStandard": "c++11",
-            "intelliSenseMode": "gcc-x64",
-            "configurationProvider": "vector-of-bool.cmake-tools",
-            "compileCommands": "${vector-of-bool.cmake-tools.buildDirectory}/compile_commands.json"
+            "compilerPath": "C:/mingw-w64/mingw64/bin/g++.exe",
+            "intelliSenseMode": "gcc-x64"
+        },
+        {
+            "name": "Win32_clang",
+            "includePath": [
+                "${workspaceFolder}/inc"
+            ],
+            "defines": [
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "C:/Program Files/LLVM/bin/clang++.exe",
+            "intelliSenseMode": "clang-x64"
         }
     ],
     "version": 4

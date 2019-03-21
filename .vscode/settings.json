@@ -1,7 +1,21 @@
 {
-    "cmake.buildDirectory": "${workspaceRoot}/build/${buildKit}/${buildType}",
-    "cmake.configureOnOpen": true,
+    "C_Cpp.loggingLevel": "Information",
 
+    "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools",
+    "C_Cpp.default.compileCommands": "${config:cmake.copyCompileCommands}",
+    "C_Cpp.default.cStandard": "c11",
+    "C_Cpp.default.cppStandard": "c++14",
+
+    "cmake.loggingLevel": "trace",
+    
+    "cmake.buildDirectory": "${workspaceFolder}/build/${buildKit}/${buildType}",
+    "cmake.configureOnOpen": true,
+    "cmake.copyCompileCommands": "${workspaceFolder}/build/compile_commands.json",
+    "cmake.mingwSearchDirs": ["c:/mingw-w64/mingw64/"],
+    
+    
+    "cmake.useCMakeServer": false,
+    
     "editor.emptySelectionClipboard": false,
     "editor.mouseWheelZoom"         : true,
     "editor.renderWhitespace"       : "all",
@@ -53,7 +67,8 @@
         "xtr1common": "cpp",
         "xutility": "cpp",
         "algorithm": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "list": "cpp"
     }
 
 }
