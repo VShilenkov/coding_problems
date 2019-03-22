@@ -2,7 +2,7 @@
 #include <iostream>
 #include <list>
 
-void naive(unsigned permutation_number)
+inline void naive(unsigned permutation_number)
 {
     unsigned a[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
@@ -11,7 +11,7 @@ void naive(unsigned permutation_number)
     std::cout << std::endl;
 }
 
-void factorial_representaion(unsigned permutation_number)
+inline void factorial_representaion(unsigned permutation_number)
 {
     constexpr unsigned base                        = 10U;
     unsigned           factor_representation[base] = {0};
