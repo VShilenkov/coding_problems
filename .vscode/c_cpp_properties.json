@@ -1,7 +1,10 @@
 {
+    "env": {
+        "bin.path": "C:/msys64/mingw64/bin"
+    },
     "configurations": [
         {
-            "name": "Win32_MinGW-x64",
+            "name": "Win32_MinGW-x64_GCC",
             "includePath": [
                 "${workspaceFolder}/inc"
             ],
@@ -9,11 +12,11 @@
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "C:/mingw-w64/mingw64/bin/g++.exe",
+            "compilerPath": "${env:bin.path}/g++",
             "intelliSenseMode": "gcc-x64"
         },
         {
-            "name": "Win32_clang",
+            "name": "Win32_MinGW-x64_clang",
             "includePath": [
                 "${workspaceFolder}/inc"
             ],
@@ -21,7 +24,7 @@
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "C:/Program Files/LLVM/bin/clang++.exe",
+            "compilerPath": "${env:bin.path}/clang++",
             "intelliSenseMode": "clang-x64"
         }
     ],

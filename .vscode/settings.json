@@ -6,15 +6,12 @@
     "C_Cpp.default.cStandard": "c11",
     "C_Cpp.default.cppStandard": "c++14",
 
-    "cmake.loggingLevel": "trace",
+    "cmake.loggingLevel": "info",
     
     "cmake.buildDirectory": "${workspaceFolder}/build/${buildKit}/${buildType}",
     "cmake.configureOnOpen": true,
     "cmake.copyCompileCommands": "${workspaceFolder}/build/compile_commands.json",
-    "cmake.mingwSearchDirs": ["c:/mingw-w64/mingw64/"],
-    
-    
-    "cmake.useCMakeServer": false,
+    "cmake.mingwSearchDirs": ["c:/msys64/mingw64"],
     
     "editor.emptySelectionClipboard": false,
     "editor.mouseWheelZoom"         : true,
