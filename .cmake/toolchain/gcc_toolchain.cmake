@@ -12,4 +12,4 @@ if (NOT WIN32)
 endif(NOT WIN32)
 
 add_compile_options("SHELL:-Wall -Wextra -Wpedantic")
-add_compile_options("SHELL:-pedantic -fdiagnostics-show-option")
+add_compile_options("SHELL:-fdiagnostics-show-option")
