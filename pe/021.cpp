@@ -14,7 +14,7 @@ int main( )
         numbers[i] = i;
     }
 
-    for (T i = 2U; i <= N; ++i)
+    for (T i = 2U; i <= N; ++i)    // modified sieve eratosthens to calc function of divisors sigma_1
     {
         if (numbers[i] != 1U)
         {
@@ -29,17 +29,18 @@ int main( )
                     numbers[j] /= prime;
                 }
 
-                nominator *= i;
+                nominator *= prime;
                 --nominator;
                 sigma1[j] *= nominator;
                 sigma1[j] /= (prime - 1U);
             }
         }
+
+        sigma1[i] -= i;    // aliquot sum
     }
 
-    for (T i = 2U; i <= N; ++i) { sigma1[i] -= i; }
     T sum = 0U;
-    for (T i = 2U; i <= N; ++i)
+    for (T i = 2U; i <= N; ++i)    // looking for pairs aliquot(a) = b and aliqout(b) = a
     {
         if ((i != sigma1[i]) && (sigma1[i] <= N) && (i == sigma1[sigma1[i]])) { sum += i; }
     }

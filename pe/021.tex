@@ -1,0 +1,140 @@
+\documentclass{article}
+\usepackage{amsmath, algorithm, algpseudocode}
+
+\begin{document}
+
+\title{021}
+\author{VSh}
+
+\maketitle
+
+\section{Tags}
+\begin{itemize}
+    \item amicable numbers;
+    \item proper divisors;
+    \item function of divisors;
+    \item sum-of-divisors function;
+    \item aliquot sum;
+\end{itemize}
+
+\section{Problem}
+Evaluate the sum of all the amicable numbers under 10000.
+
+\section{Definitions}
+\subsection{Function of divisors}
+The \textbf{sum of positive divisors function $\sigma_{x}(n)$}, for a real or complex number $x$,
+is defined as the sum of the $x$-th powers of the positive divisors of $n$.
+\begin{equation*}
+    \sigma_{x}(n) = \sum_{d \mid n}{d^{x}}
+\end{equation*}
+where $d \mid n$ means $d$ divides $n$.
+
+\subsection{Sum-of-divisors function}
+The divisors function $\sigma_{x}(n)$ for $x=1$ called \textbf{sum-of-divisors function}.
+\begin{equation*}
+    \sigma_{1}(n) = \sum_{d \mid n}{d}
+\end{equation*}
+
+\subsection{Proper divisor}
+A positive divisor of $n$ which is different from $n$ is called \textbf{a proper divisor} 
+or \textbf{an aliquot part} of $n$.
+
+\subsection{Aliquot sum}
+The \textbf{aliquot sum $s(n)$} is the sum of proper divisors $n$.
+\begin{equation*}
+    s(n) = \sigma_{1}(n) - n
+\end{equation*}
+
+\subsection{Amicable numbers}
+\textbf{Amicable numbers} are two different numbers so related that the sum of the proper divisors of each is equal to the other number.
+\begin{equation*}
+    \begin{split}
+        s(n) = m \\
+        s(m) = n
+    \end{split}
+\end{equation*}
+And to test if a number is one of amicable pair:
+\begin{equation*}
+        n = s(s(n))
+\end{equation*}
+
+\section{Calculation}
+To find out if the number is one of amicable pair, needs to be calculated the aliquot sum of this number,
+and for that need to know the sum-of-divisors function for that number.
+
+\subsection{Divisors function}
+Factorisation of $n$
+\begin{equation}
+    n = \prod_{i=1}^{r}{p_{i}^{\alpha_{i}}}
+\end{equation}
+Where:
+\begin{itemize}
+    \item $r = \omega(n)$ - the number of distinct prime numbers of $n$
+    \item $p_{i}$ - $i$-th prime factor of $n$
+    \item $\alpha_{i}$ - the highest power of prime $p_{i}$ by which $n$ is divisible
+\end{itemize}
+\begin{equation}
+    \sigma_{x}(n) = \prod_{i=1}^{r}{ \sum_{j=0}^{\alpha_{i}}{p_{i}^{jx}}} = 
+    \prod_{i=1}^{r}{(1 + p_{i}^{x} + p_{i}^{2x} + .. + + p_{i}^{\alpha_{i}x})}
+\end{equation}
+\begin{equation} \label{eq:3}
+    \sigma_{x}(n) = \prod_{i=1}^{r}{  \frac{p_{i}^{(\alpha_{i}+1)x } - 1}{p_{i}^{x} - 1} }
+\end{equation}
+According to \eqref{eq:3} sum-of-divisors function can be calculated
+\begin{equation} 
+    \sigma_{1}(n) = \prod_{i=1}^{r}{  \frac{p_{i}^{(\alpha_{i}+1) } - 1}{p_{i} - 1} }
+\end{equation}
+
+\section{Implementation}
+Modified Eratosthen's sieve will be used to calculated sum-of-divisors function.
+\begin{algorithm}
+    \caption{Sum-of-divisors algorithm}\label{alg:sigma_1}
+    \begin{algorithmic}[1]
+        \State $sigma \gets [1 .. 1]$ \Comment{N times}
+        \State $number \gets [1 .. N]$
+        \For{$i \gets 2, N$}
+            \If{$number_i \ne 1$} \Comment{Invariant: number[i] prime or 1}
+                \State $prime \gets number_i$
+                \For{$j \gets prime, N$} \Comment{For all numbers devisible by prime}
+                    \State $nominator \gets 1$
+                    \State $denominator \gets prime - 1$
+                    \While {$number_j \bmod prime = 0 $} \Comment{Highest power of prime}
+                        \State $nominator \gets nominator \cdot prime$
+                        \State $number_j \gets number_j / prime$
+                    \EndWhile
+                    \State $nominator \gets nominator \cdot prime - 1$
+                    \State $sigma_i \gets sigma_i \cdot nominator / denominator$
+                \State $j \gets j + prime$
+                \EndFor
+            \EndIf
+            \State $i \gets i + 1$
+        \EndFor
+    \end{algorithmic}
+\end{algorithm}
+
+Get aliqout sums for all the numbers:
+\begin{algorithm}
+    \caption{Aliquot sum} \label{alg:aliqout}
+    \begin{algorithmic}[1]
+        \For{$i \gets 2, N$}
+            \State $sigma_i \gets sigma_i - i$
+            \State $i \gets i + 1$
+        \EndFor
+    \end{algorithmic}
+\end{algorithm}
+
+Accumulate all the amicable numbers
+\begin{algorithm}
+    \caption{Amicable sum} \label{alg:amicable}
+    \begin{algorithmic}[1]
+        \State $sum \gets 0$
+        \For{$i \gets 2, N$}
+            \If{($i \ne sigma_i) \& (sigma_i \le N) \& (i = sigma_{sigma_i}) $}
+            \State $sum \gets sum + i$
+            \EndIf
+            \State $i \gets i + 1$
+        \EndFor
+    \end{algorithmic}
+\end{algorithm}
+
+\end{document}
