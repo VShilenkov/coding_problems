@@ -1,0 +1,104 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{syntax}
+
+\begin{document}
+
+\title{017}
+\author{VSh}
+
+\maketitle
+
+\section{Word written representation}
+Build simple grammar of english numerials till 1'000.
+
+\setlength{\grammarindent}{10em}
+\begin{grammar}
+    <number> ::= <number_3digit> | <number_2digit> | <number_1digit>
+    \alt \textbf{'zero'}
+
+    <number_3digit> ::= <number_pure_hundreds> | <number_not_pure_hundreds>
+
+    <number_pure_hundreds> ::= <number_1digit> \textbf{'hundred'}
+
+    <number_not_pure_hundreds> ::= <number_pure_hundreds> \textbf{'and'} <number_hundred_prefix>
+
+    <number_hundred_prefix> ::= <number_2digit> | <number_1digit>
+
+    <number_2digit> ::= \textbf{'ten'} | <number_teen> | <number_ten>
+    \alt <number_ten> \textbf{'-'} <number_1digit>
+
+    <number_teen> ::= \textbf{'eleven'} | \textbf{'twelve'} | \textbf{'thirteen'}
+    | \textbf{'fourteen'} | \textbf{'fifteen'} \alt
+    \textbf{'sixteen'} |  \textbf{'seventeen'} | \textbf{'eighteen'}
+    | \textbf{'nineteen'}
+
+    <number_ten> ::= \textbf{'twenty'} | \textbf{'thirty'} | \textbf{'fourty'}
+    | \textbf{'fifty'} | \textbf{'sixty'} \alt \textbf{'seventy'}
+    | \textbf{'eighty'} | \textbf{'ninety'}
+
+    <number_1digit> ::= \textbf{'one'} | \textbf{'two'} | \textbf{'three'} | \textbf{'four'}
+    | \textbf{'five'} | \textbf{'six'} | \textbf{'seven'}
+    \alt \textbf{'eight'} | \textbf{'nine'}
+
+\end{grammar}
+Number 1'000 represented as \textbf{'one thousand'}
+
+\section{Calculation}
+\subsection{Definitions}
+
+Include some conventions that will be used for calculation.
+\begin{itemize}
+    \item $ f(x) $ - function that represent the number of non-whitespace symbols
+          (\textbf{' '}, \textbf{'-'}) in the text representation of number $x$.
+    \item $ F_{x} = \sum_{i=1}^{x}{f(i)} $
+    \item $H$ - lenth of \textbf{'hundred'} word.
+    \item $T$ - lenth of \textbf{'thousand'} word.
+    \item $A$ - lenth of \textbf{'and'} word.
+
+\end{itemize}
+
+\subsection{Solve}
+\begin{equation*}
+    \begin{split}
+        F_{1000} & = \sum_{x=1}^{1000}{f(x)} =  \\
+        & = \sum_{x=1}^{99}{f(x)} + f(100) + \sum_{x=100}^{199}{f(x)}           \\
+        & \qquad \qquad \quad     + f(200) + \sum_{x=200}^{299}{f(x)} + .. + \\
+        & \qquad \qquad \quad     + f(900) + \sum_{x=900}^{999}{f(x)} + f(1000) = \\
+        & = \sum_{x=1}^{99}{f(x)} + f(100) + \sum_{x=100}^{199}{[f(100) + A + f(x-100)]} + \\
+        & \qquad \qquad \quad     + f(200) + \sum_{x=200}^{299}{[f(200) + A + f(x-200)]} + .. + \\
+        & \qquad \qquad \quad     + f(900) + \sum_{x=900}^{999}{[f(900) + A + f(x-900)]} + f(1000) = \\
+        & = F_{99}      + f(100) + 99 \cdot f(100) + 99 \cdot A + \sum_{x=100}^{199}{f(x-100)} + \\
+        & \qquad \;\;\; + f(200) + 99 \cdot f(200) + 99 \cdot A + \sum_{x=200}^{299}{f(x-200)} + .. + \\
+        & \qquad \;\;\; + f(900) + 99 \cdot f(900) + 99 \cdot A + \sum_{x=900}^{999}{f(x-900)} + f(1000) = \\
+        & = F_{99}      + 100 \cdot f(100) + 99 \cdot A + F_{99} + \\
+        & \qquad \;\;\; + 100 \cdot f(200) + 99 \cdot A + F_{99} + .. + \\
+        & \qquad \;\;\; + 100 \cdot f(900) + 99 \cdot A + F_{99} + f(1000) = \\
+        & = 10 \cdot F_{99} + 100 \cdot (f(100) + f(200) + .. + f(900)) + 99 \cdot 9 \cdot A + f(1000) = \\
+        & = 10 \cdot F_{99} + 100 \cdot (f(1) + H + .. + f(9) + H) + 99 \cdot 9 \cdot A + f(1000) =
+    \end{split}
+\end{equation*}
+
+\begin{equation*}
+    \begin{split}
+        & = 10 \cdot F_{99} + 100 \cdot (F_{9} + 9 \cdot H) + 99 \cdot 9 \cdot A + f(1000) = \\
+        & = 10 \cdot F_{99} + 100 \cdot F_9 + 100 \cdot 9 \cdot H + 99 \cdot 9 \cdot A + f(1) + T = \\
+        & = 10 \cdot F_{99} + 100 \cdot F_9 + 9 \cdot (100 \cdot H + 100 \cdot A - A) + f(1) + T = \\
+        & = 10 \cdot (F_{9} + f(10) + \sum_{x=11}^{19}{f(x)} + \sum_{x=20}^{99}{f(x)}) \\
+        & \quad + 100 \cdot F_9 + 9 \cdot (100 \cdot (H + A) - A) + f(1) + T = \\
+        & = 10 \cdot (F_{9} + f(10) + \sum_{x=11}^{19}{f(x)} + \sum_{i=2}^{9}{ \sum_{j=0}^{9}{(f(10 \cdot i) + f(j)) } }) \\
+        & \quad + 100 \cdot F_9 + 9 \cdot (100 \cdot (H + A) - A) + f(1) + T = \\
+        & = 10 \cdot (F_{9} + f(10) + \sum_{x=11}^{19}{f(x)} + \sum_{i=2}^{9}{ (10 \cdot f(10 \cdot i) + F_{9} )} ) \\
+        & \quad + 100 \cdot F_9 + 9 \cdot (100 \cdot (H + A) - A) + f(1) + T = \\
+        & = 10 \cdot (F_{9} + f(10) + \sum_{x=11}^{19}{f(x)} + 10 \cdot \sum_{i=2}^{9}{ f(10 \cdot i)} + 8 \cdot F_{9} ) \\
+        & \quad + 100 \cdot F_9 + 9 \cdot (100 \cdot (H + A) - A) + f(1) + T = \\
+        & = 10 \cdot F_{9} + 10 \cdot f(10) + 10 \cdot \sum_{x=11}^{19}{f(x)} + 100 \cdot \sum_{i=2}^{9}{ f(10 \cdot i)} + 80 \cdot F_{9} \\
+        & \quad + 100 \cdot F_9 + 9 \cdot (100 \cdot (H + A) - A) + f(1) + T = \\
+        & = 110 \cdot F_{9} + 10 \cdot f(10) + 10 \cdot \sum_{x=11}^{19}{f(x)} + 100 \cdot \sum_{i=2}^{9}{ f(10 \cdot i)} + 80 \cdot F_{9} \\
+        & \quad + 9 \cdot (100 \cdot (H + A) - A) + f(1) + T \\
+        & = 190 \cdot F_{9} + f(1) + 10 \cdot f(10) + 10 \cdot \sum_{x=11}^{19}{f(x)} + 100 \cdot \sum_{i=2}^{9}{ f(10 \cdot i)} \\
+        & \quad + 9 \cdot (100 \cdot (H + A) - A) + T
+    \end{split}
+\end{equation*}
+
+\end{document}
