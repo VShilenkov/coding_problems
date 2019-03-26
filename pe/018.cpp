@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
     for (T i = 0U; i < expect_to_read; ++i)
     {
         T read = 0U;
-        V current_line(100U, 0U);
+        V current_line(100U, 0U); // contains max valued path to the current item
 
         while ((read < expect_to_read) && (input))
         {

@@ -44,17 +44,21 @@ private:
 
 int main( )
 {
+    // sum of digits in n! is equal to sum of digits in n! without trailing zeros
+    // so do not multiply by 10 all time its possible -> do not multiply by 5 and remove 
+    // one power of 2 from counter
+
     long_number a(1U);
     size_t      two_counter = 0;
     for (T i = 2U; i <= 100U; ++i)
     {
         T ii = i;
-        while ((ii & 1U) == 0U)
+        while ((ii & 1U) == 0U)    // count power of 2 in current i
         {
             ++two_counter;
             ii >>= 1U;
         }
-        while ((ii % 5U) == 0)
+        while ((ii % 5U) == 0)    // remove trailling zeros (if devideable by 5 -> remove one power of 2 from counter)
         {
             --two_counter;
             ii /= 5U;
@@ -63,7 +67,7 @@ int main( )
         a *= ii;
     }
 
-    while (two_counter > 0U)
+    while (two_counter > 0U) // return back all remaining 2-s from final value;
     {
         a *= 2U;
         --two_counter;
