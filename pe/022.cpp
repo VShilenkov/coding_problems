@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 
     std::map<std::string, unsigned int> d;
     std::string                         name;
-    while (input >> name)
+    while (input >> name)   // read and calculate score for each name
     {
         unsigned score = 0U;
         for (char c : name) { score += (c - 'A') + 1U; }
@@ -23,6 +23,7 @@ int main(int argc, char* argv[])
     unsigned sum   = 0U;
     for (auto a = d.cbegin( ); a != d.cend( ); ++a)
     {
+        // accumulate total score as literal score by index in sorted sequence
         unsigned score = index * a->second;
         sum += score;
         ++index;
