@@ -33,40 +33,28 @@ int main( )
                     numbers[j] /= prime;
                 }
 
-                nominator *= i;
+                nominator *= prime;
                 --nominator;
                 sigma1[j] *= nominator;
                 sigma1[j] /= (prime - 1U);
             }
         }
-    }
-
-    for (T i = 2U; i <= N; ++i)
-    {
-        if (sigma1[i] > 2 * i) { abundant[i] = 1U; }
-    }
-
-    for (T i = 12U; i <= N; ++i)
-    {
-        if (abundant[i] == 1U)
-        {
-            for (T j = i; j <= N; ++j)
-            {
-                if (abundant[j] == 1U)
-                {
-                    if (i + j <= N) represented[i + j] = 1U;
-                }
-            }
-        }
+        if (sigma1[i] > (i << 1U)) { abundant[i] = 1U; }
     }
 
     T sum = 0U;
     for (T i = 1U; i <= N; ++i)
     {
-        if (represented[i] == 0U) { sum += i; }
+        if (abundant[i])
+        {
+            for (T j = i; j <= N - i; ++j)
+            {
+                if (abundant[j]) { represented[i + j] = 1U; }
+            }
+        }
+        if (!represented[i]) { sum += i; }
     }
 
     std::cout << sum;
-
     return 0;
 }

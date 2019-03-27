@@ -1,0 +1,173 @@
+\documentclass{article}
+\usepackage{amsmath, algorithm, algpseudocode, hyperref}
+
+\begin{document}
+
+\title{023}
+\author{VSh}
+
+\maketitle
+
+\section{Tags}
+\begin{itemize}
+    \item abundant numbers;
+    \item proper divisors;
+    \item function of divisors;
+    \item sum-of-divisors function;
+    \item aliquot sum;
+\end{itemize}
+
+\section{Problem}
+Find the sum of all the positive integers which cannot be written as the sum of 
+two abundant numbers.
+
+\section{Definitions}
+\subsection{Function of divisors}
+The \textbf{sum of positive divisors function $\sigma_{x}(n)$}, for a real or complex number $x$,
+is defined as the sum of the $x$-th powers of the positive divisors of $n$.
+\begin{equation*}
+    \sigma_{x}(n) = \sum_{d \mid n}{d^{x}}
+\end{equation*}
+where $d \mid n$ means $d$ divides $n$.
+
+\subsection{Sum-of-divisors function}
+The divisors function $\sigma_{x}(n)$ for $x=1$ called \textbf{sum-of-divisors function}.
+\begin{equation*}
+    \sigma_{1}(n) = \sum_{d \mid n}{d}
+\end{equation*}
+
+\subsection{Proper divisor}
+A positive divisor of $n$ which is different from $n$ is called \textbf{a proper divisor} 
+or \textbf{an aliquot part} of $n$.
+
+\subsection{Aliquot sum}
+The \textbf{aliquot sum $s(n)$} is the sum of proper divisors $n$.
+\begin{equation*}
+    s(n) = \sigma_{1}(n) - n
+\end{equation*}
+
+\subsection{Abundant number}
+\textbf{An abundant number} or \textbf{excessive number} is a number for which the sum of its 
+proper divisors is greater than the number itself.
+
+To test if a particular number is abundant:
+\begin{equation*}
+    s(n) > n
+\end{equation*}
+And according to the definition of aliquot sum, can be rewritten as:
+\begin{equation*}
+    \sigma_{1}(n) > 2n
+\end{equation*}
+
+\section{Calculation}
+\subsection{Aproach}
+As it was told [\href{https://projecteuler.net/problem=23}{023}], all integers greater than 
+28123 can be written as the sum of two abundant numbers. The main idea is to find all the integers 
+form 24 to this upper bound that can be represented and find sum of all other.
+It is only needed to check if a particular number abundant. Sum-of-divisors function can 
+be utilised to test it. Then go throgh all abundant and build all possible sums of them.
+All other numbers that cannot be represented is the needed sum.
+
+\subsection{Divisors function}
+Factorisation of $n$
+\begin{equation}
+    n = \prod_{i=1}^{r}{p_{i}^{\alpha_{i}}}
+\end{equation}
+Where:
+\begin{itemize}
+    \item $r = \omega(n)$ - the number of distinct prime numbers of $n$
+    \item $p_{i}$ - $i$-th prime factor of $n$
+    \item $\alpha_{i}$ - the highest power of prime $p_{i}$ by which $n$ is divisible
+\end{itemize}
+\begin{equation}
+    \sigma_{x}(n) = \prod_{i=1}^{r}{ \sum_{j=0}^{\alpha_{i}}{p_{i}^{jx}}} = 
+    \prod_{i=1}^{r}{(1 + p_{i}^{x} + p_{i}^{2x} + .. + + p_{i}^{\alpha_{i}x})}
+\end{equation}
+\begin{equation} \label{eq:3}
+    \sigma_{x}(n) = \prod_{i=1}^{r}{  \frac{p_{i}^{(\alpha_{i}+1)x } - 1}{p_{i}^{x} - 1} }
+\end{equation}
+According to \eqref{eq:3} sum-of-divisors function can be calculated
+\begin{equation} 
+    \sigma_{1}(n) = \prod_{i=1}^{r}{  \frac{p_{i}^{(\alpha_{i}+1) } - 1}{p_{i} - 1} }
+\end{equation}
+
+\section{Implementation}
+Modified Eratosthen's sieve will be used to calculated sum-of-divisors function.
+
+\begin{algorithm}
+\caption{Sum-of-divisors algorithm}\label{alg:sigma_1}
+\begin{algorithmic}[1]
+\State $sigma \gets [1 .. 1]$ \Comment{N times}
+\State $number \gets [1 .. N]$
+\For{$i \gets 2, N$}
+    \If{$number_i \ne 1$} \Comment{Invariant: number[i] prime or 1}
+        \State $prime \gets number_i$
+        \For{$j \gets prime, N$} \Comment{For all numbers devisible by prime}
+            \State $nominator \gets 1$
+            \State $denominator \gets prime - 1$
+            \While {$number_j \bmod prime = 0 $} \Comment{Highest power of prime}
+                \State $nominator \gets nominator \cdot prime$
+                \State $number_j \gets number_j / prime$
+            \EndWhile
+            \State $nominator \gets nominator \cdot prime - 1$
+            \State $sigma_i \gets sigma_i \cdot nominator / denominator$
+        \State $j \gets j + prime$
+        \EndFor
+    \EndIf
+    \State $i \gets i + 1$
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\newpage
+Mark all abundant numbers 
+
+\begin{algorithm}
+    \caption{Abundant test}\label{alg:abundant}
+    \begin{algorithmic}[1]
+        \State $abundant \gets [\texttt{false}..\texttt{false}]$
+        \For{$i \gets 2, N$}
+            \If{$sigma_i > 2i$ }
+                \State $abundant \gets \texttt{true}$
+            \EndIf
+            \State $i \gets i + 1$
+        \EndFor
+    \end{algorithmic}
+\end{algorithm}
+
+Build all possible sums of pair of abundant numbers
+
+\begin{algorithm}
+    \caption{Sums of abundant}
+    \begin{algorithmic}[1]
+        \State $represented \gets [\texttt{false} .. \texttt{false}]$
+        \For{$i \gets 1, N$}
+            \State $i \gets i + 1$
+            \If{$abundant_i$}
+                \For{$j \gets i, N - i$}
+                    \If{$abundant_i$}
+                        \State $represented_{i + j} \gets \texttt{true}$
+                    \EndIf
+                    \State $j \gets j + 1$
+                \EndFor
+            \EndIf
+        \EndFor
+    \end{algorithmic}
+\end{algorithm}
+
+Accumulate all the integers that cannot be the sum of pair of abundant numbers
+
+\begin{algorithm}
+    \caption{Sum of not representable as sum of two abundant}
+    \begin{algorithmic}[1]
+        \State $total \gets 0$
+        \For{$i \gets 1, N$}
+            \If{$\neg represented_i$}
+                \State $total \gets total + i$
+            \EndIf
+            \State $i \gets i + 1$
+        \EndFor
+    \end{algorithmic}
+\end{algorithm}
+
+\end{document}
