@@ -1,0 +1,200 @@
+\documentclass{article}
+\usepackage{amsmath, algorithm, algpseudocode, hyperref}
+
+\begin{document}
+
+\title{024}
+\author{VSh}
+
+\maketitle
+
+\section{Tags}
+\begin{itemize}
+    \item permutation;
+    \item lexicographic permutation;
+    \item factorial representaion;
+\end{itemize}
+
+\section{Problem}
+Find the millionth lexicographic permutation of the digits ${0, 1, 2, 3, 4, 5, 6, 7, 8, 9}$.
+
+\section{Definitions}
+\subsection{Permutation}
+[\href{https://en.wikipedia.org/wiki/Permutation}{wiki:Premutation}]\newline
+\textbf{Permutation} is the act of \textbf{arranging} the members of a set into
+a sequence or order, or, if the set is already ordered, \textbf{rearranging}
+(reordering) its elements — a process called \textbf{permuting}.
+
+\subsection{Lexicographic permutation}
+\textbf{Lexicographic permutation} - the way of permuting the set, where two
+consequtive permutations is in lexicographic order.
+
+\subsection{Factorial rerepresentaion (Factorial number system)}
+[\href{https://en.wikipedia.org/wiki/Factorial_number_system}{wiki:Factorial number system}]\newline
+In combinatorics, the \textbf{factorial number system}, also called \textbf{factoradic},
+is a mixed radix numeral system adapted to numbering permutations. It is also
+called \textbf{factorial base}, although factorials do not function as base,
+but as place value of digits. By converting a number less than $n!$ to factorial
+representation, one obtains a sequence of $n$ digits that can be converted to a
+permutation of $n$ in a straightforward way, either using them as Lehmer code
+or as inversion table representation; in the former case the resulting map from
+integers to permutations of $n$ lists them in lexicographical order.
+
+\section{Calculation}
+\subsection{Approach}
+Using factorial base number system it is possible to find $n_{th}$ lexicographic
+permutation, instead of finding all of them and looking for $n_{th}$.
+
+\subsection{Factorial number system}
+A factorial number system uses factorial values instead of powers of numbers
+to denote place-values (or base). \newline
+
+\begin{tabular}{ | l | c | c | c | c | c | c | c | c |}
+    \hline
+    \textbf{Radix}                  & 8    & 7   & 6   & 5  & 4  & 3  & 2  & 1  \\ \hline
+    \textbf{Place value}            & 7!   & 6!  & 5!  & 4! & 3! & 2! & 1! & 0! \\ \hline
+    \textbf{Place value in decimal} & 5040 & 720 & 120 & 24 & 6  & 2  & 1  & 1  \\ \hline
+    \textbf{Highest digit allowed}  & 7    & 6   & 5   & 4  & 3  & 2  & 1  & 0  \\ \hline
+\end{tabular}
+\newline \newline
+
+For example:
+\begin{align*}
+    \hline
+    00_{10} & \mapsto & 0 \cdot 3! + 0 \cdot 2! + 0 \cdot 1! + 0 \cdot 0! \mapsto 0000_{!} \\
+    01_{10} & \mapsto & 0 \cdot 3! + 0 \cdot 2! + 1 \cdot 1! + 0 \cdot 0! \mapsto 0010_{!} \\
+    02_{10} & \mapsto & 0 \cdot 3! + 1 \cdot 2! + 0 \cdot 1! + 0 \cdot 0! \mapsto 0100_{!} \\
+    03_{10} & \mapsto & 0 \cdot 3! + 1 \cdot 2! + 1 \cdot 1! + 0 \cdot 0! \mapsto 0110_{!} \\
+    04_{10} & \mapsto & 0 \cdot 3! + 2 \cdot 2! + 0 \cdot 1! + 0 \cdot 0! \mapsto 0200_{!} \\
+    05_{10} & \mapsto & 0 \cdot 3! + 2 \cdot 2! + 1 \cdot 1! + 0 \cdot 0! \mapsto 0210_{!} \\
+    06_{10} & \mapsto & 1 \cdot 3! + 0 \cdot 2! + 0 \cdot 1! + 0 \cdot 0! \mapsto 1000_{!} \\
+    07_{10} & \mapsto & 1 \cdot 3! + 0 \cdot 2! + 1 \cdot 1! + 0 \cdot 0! \mapsto 1010_{!} \\
+    08_{10} & \mapsto & 1 \cdot 3! + 1 \cdot 2! + 0 \cdot 1! + 0 \cdot 0! \mapsto 1100_{!} \\
+    09_{10} & \mapsto & 1 \cdot 3! + 1 \cdot 2! + 1 \cdot 1! + 0 \cdot 0! \mapsto 1110_{!} \\
+    10_{10} & \mapsto & 1 \cdot 3! + 2 \cdot 2! + 0 \cdot 1! + 0 \cdot 0! \mapsto 1200_{!} \\
+   \hline
+\end{align*}
+
+\newpage
+\subsection{Lexicographic permutation}
+
+Example of permutations of set $\{a, b, c, d\}$
+
+\begin{align*}
+    \hline
+    00 \quad abcd && 06 \quad bacd && 12 \quad cabd && 18 \quad dabc \\
+    01 \quad abdc && 07 \quad badc && 13 \quad cadb && 19 \quad dacb \\
+    02 \quad acbd && 08 \quad bcad && 14 \quad cbad && 20 \quad dbac \\
+    03 \quad acdb && 09 \quad bcda && 15 \quad cbda && 21 \quad dbca \\
+    04 \quad adbc && 10 \quad bdac && 16 \quad cdab && 22 \quad dcab \\
+    05 \quad adcb && 11 \quad bdca && 17 \quad cdba && 23 \quad dcba \\
+    \hline
+\end{align*}
+\newline
+
+The first letter changes after every $6_{th} (3!)$ permutation. The second one -
+after $2 (2!)$, third one and forth one changes every time ($1!$ and $0!$).
+\newline\newline
+The algorithm of $n_{th}$ lexicographical permutation looks like:
+\begin{enumerate}
+    \item represent $n$ in factoradic;
+    \item sort lexicographically input set and consider indexes from 0;
+    \item for each digit in factoriadic representaion:
+    \begin{enumerate}
+            \item append the symbol from input set by this number to the output
+            \item remove from input
+    \end{enumerate}
+\end{enumerate} 
+
+\paragraph{example}
+Find $14_{th}$ lexicographical permutation of $\{a,b,c,d\}$ set.
+\begin{equation*}
+    14_{10} = 2 \cdot 3! + 1 \cdot 2! + 0 \cdot 1! + 0 \cdot 0! = 2100_{!}
+\end{equation*}
+Initial state: \qquad
+\begin{tabular}{ l | c | c }
+    \hline
+    \quad       & input         & output    \\
+    string      & \textbf{abcd} & \textbf{} \\
+    indexes     &  0123         & \quad     \\
+    factoriadic & \quad         & 2100      \\
+\end{tabular}
+\newline\newline
+First digit in factoradic is 2. The item from the set with index 2 is \textbf{c}
+\newline
+Iteration: 1 \qquad
+\begin{tabular}{ l | c | c }
+    \hline
+    \quad       & input         & output    \\
+    string      & \textbf{abd} & \textbf{c} \\
+    indexes     &  012         & \quad      \\
+    factoriadic & \quad        & 100        \\
+\end{tabular}
+\newline\newline
+Next digit - 1. Item - \textbf{b} \newline
+Iteration: 2 \qquad
+\begin{tabular}{ l | c | c }
+    \hline
+    \quad       & input       & output      \\
+    string      & \textbf{ad} & \textbf{cb} \\
+    indexes     &  01         & \quad       \\
+    factoriadic & \quad       & 00          \\
+\end{tabular}
+\newline\newline
+
+Next digit - 0. Item - \textbf{a} \newline
+Iteration: 3 \qquad
+\begin{tabular}{ l | c | c }
+    \hline
+    \quad       & input      & output       \\
+    string      & \textbf{d} & \textbf{cba} \\
+    indexes     &  0         & \quad        \\
+    factoriadic & \quad      & 0            \\
+\end{tabular}
+\newline\newline
+
+Last digit - 0. Item - \textbf{d} \newline
+Iteration: 4 \qquad
+\begin{tabular}{ l | c | c }
+    \hline
+    \quad       & input      & output       \\
+    string      & \textbf{} & \textbf{cbad} \\
+\end{tabular}
+\newline\newline
+
+\section{Implementation}
+
+\begin{algorithm}
+    \caption{Factoriadic representaion}\label{alg:factoriadic}
+    \begin{algorithmic}[1]
+        \Require $number$ \Comment{takes number to transform in factoriadic}
+        \State $base \gets 10$
+        \State $representation \gets [0..0]$ \Comment{10 times ($base$)}
+        \For{$i \gets 2, i \le base$}
+            \State $representation_{base-i} = number \bmod i$
+            \State $number \gets number \div i$
+            \State $i \gets i + 1$
+        \EndFor
+        \State \Return $representation$
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+    \caption{lexicographical permutation}\label{alg:permutation}
+    \begin{algorithmic}[1]
+        \Require $representaion$ \Comment{permitation number in factoriadic}
+        \State $input \gets [0..base]$
+        \State $output \gets []$ \Comment{empty string}
+        \For{$i \gets 0, i < base$}
+            \State $index \gets representaion_{i} $
+            \State $p \gets input_{index}$
+            \State $output.append(p)$
+            \State $input.erase(index)$
+            \State $i \gets i + 1$
+        \EndFor
+        \State \Return $output$
+    \end{algorithmic}
+\end{algorithm}
+
+
+\end{document}
