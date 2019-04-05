@@ -1,0 +1,76 @@
+\documentclass{article}
+\usepackage{amsmath, hyperref}
+
+\begin{document}
+
+\title{025}
+\author{VSh}
+
+\maketitle
+
+\section{Tags}
+\begin{itemize}
+    \item Fibonacci numbers;
+    \item logarithm;
+    \item number of digits;
+\end{itemize}
+
+\section{Problem}
+Find th index of the first term in the Fibonacci sequence that contains 1000 digits.
+\newline
+[\href{https://projecteuler.net/problem=25}{problem}]
+
+\section{Definitions}
+\subsection{Fibonacci numbers}
+[\href{https://en.wikipedia.org/wiki/Fibonacci_number}{wiki:Fibonacci numbers}] \newline
+The \textbf{Fibonacci numbers}, commonly denoted $F_n$ form a sequence, called 
+the \textbf{Fibonacci sequence}, such that each number is the sum of the two 
+preceding ones, starting from 0 and 1.
+\begin{align*}
+    F_0 = & 0 \\
+    F_1 = & 1 \\
+    F_n = & F_{n-1} + F_{n-2}, n > 1
+\end{align*}
+
+\subsubsection{Computation by rounding}
+\begin{equation*}
+    F_n = \bigg[  \frac{\varphi^{n}}{\sqrt{5}}  \bigg] 
+    = \bigg[  \frac{\big( \frac{1 + \sqrt{5}}{2} \big)^{n}}{\sqrt{5}}  \bigg]
+\end{equation*}
+
+\subsection{Logarithm}
+[\href{https://en.wikipedia.org/wiki/Logarithm}{wiki:Logarithm}] \newline
+The \textbf{logarithm} is the inverse function to exponentiation.
+\begin{align*}
+    \log_{b}{(x)} = y \iff b^{y} = x
+\end{align*}
+
+\subsection{Number of digits}
+According to the definition of logarithm, the number of digits in representing of
+the particular number $x$ in numerical system with base $b$ is the smallest integer
+strictly bigger than $\log_{b}{(x)}$.
+
+\section{Calculation}
+Let $N(x)$ - function of the number of digits in representation of $x$.
+\begin{equation*}
+    N(x) > \lg{(x)}
+\end{equation*}
+
+Then
+
+\begin{align*}
+    N(F_n) & > \lg{\bigg[  \frac{\big( \frac{1 + \sqrt{5}}{2} \big)^{n}}{\sqrt{5}}  \bigg]}  > \\
+    & >  \bigg[  n \cdot \lg{ \frac{1 + \sqrt{5}}{2} } - \frac{\lg{5}}{2}  \bigg]
+\end{align*}
+
+To find \textbf{first} Fibonacci number with 1000 digits solve inequality:
+\begin{align*}
+\bigg[  n \cdot \lg{ \frac{1 + \sqrt{5}}{2} } - \frac{\lg{5}}{2}  \bigg] > & 999 \\
+n \cdot \lg{ \frac{1 + \sqrt{5}}{2} } > & 999 + \frac{\lg{5}}{2} \\
+n > & \frac {999 + \frac{\lg{5}}{2}} {\lg{ \frac{1 + \sqrt{5}}{2} }} \\
+n > & \frac {1992 + \lg{5}}{ 2 \cdot ( \lg{ (1 + \sqrt{5})} - \lg{2}) } 
+\end{align*}
+
+Solving this inequality in integers: $n = 4782$
+
+\end{document}
