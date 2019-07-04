@@ -1,0 +1,107 @@
+\documentclass{article}
+\usepackage{amsmath, algorithm, algpseudocode, hyperref, amssymb}
+
+\begin{document}
+
+\title{026}
+\author{VSh}
+
+\maketitle
+
+\section{Tags}
+\begin{itemize}
+    \item Totient rule;
+    \item Euler's totient function;
+    \item Primitive root;
+    \item Multiplicative order;
+\end{itemize}
+
+\section{\href{https://projecteuler.net/problem=26}{Problem}}
+Find the value of $d < 1000$ for which $1/d$ contains the longest recurring cycle 
+in its decimal fraction part.
+
+\section{Definitions}
+\subsection{\href{https://en.wikipedia.org/wiki/Euler's_totient_function}{Euler's totient function}}
+In number theory, \textbf{Euler's totient function} counts the positive integers up to a 
+given integer $n$ that are relatively prime to $n$.  In other words, it is the 
+number of integers $k$ in the range $1 \le k \le n$ for which the greatest common 
+divisor $gcd(n, k)$ is equal to 1.
+
+\subsection{\href{https://en.wikipedia.org/wiki/Multiplicative_order}{Multiplicative order}}
+In number theory, given an integer $a$ and a positive integer $n$ with $gcd(a,n) = 1$, 
+the multiplicative order of a modulo $n$ is the smallest positive integer $k$ with
+\begin{equation*}
+    a^k \equiv 1 \pmod{n}
+\end{equation*}
+
+
+\section{Calculation}
+\subsection{\href{https://en.wikipedia.org/wiki/Repeating_decimal\#Totient_rule}{Totient rule}} \label{totient_rule}
+For an arbitrary integer $n$ the length  $\lambda (n)$ of the repetend of $1/n$ 
+divides $\phi (n)$, where $\phi$  is the totient function. 
+The length is equal to $\phi (n)$ if and only if 10 is a primitive root modulo $n$.
+
+\subsection{Totient function upper bound} \label{totient_function_upper_bound}
+\begin{align*}
+        \phi(n) \le n - 1 & \\
+        \phi(n) = n - 1  & \iff n \text{ is prime} \\
+        \phi(n) < n - 1  & \iff n \text{ is not prime}
+\end{align*}
+
+According to  \ref{totient_rule} and \ref{totient_function_upper_bound} it is a 
+restriction to look only trough the prime numbers from the up limit that has 10 
+as a primitive roots.
+
+\subsection{\href{https://en.wikipedia.org/wiki/Primitive_root_modulo_n\#Finding_primitive_roots}{Finding primitive roots}}
+No simple general formula to compute primitive roots modulo $n$ is known. 
+There are however methods to locate a primitive root that are faster than simply 
+trying out all candidates. If the multiplicative order of a number $m$ modulo $n$ 
+is equal to $\phi(n)$ (the order of $\mathbb{Z}_n^\times$), then it is a primitive root. 
+In fact the converse is true: If $m$ is a primitive root modulo $n$, then the 
+multiplicative order of $m$ is $\phi(n)$. We can use this to test for primitive roots.
+
+First, compute $\phi(n)$. Then determine the different prime factors of $\phi(n)$:
+$p_1,p_2,...,p_k$. For particular element $m$ compute
+\begin{equation*}
+    m^{\frac{\phi(n)}{p_i}} \pmod{n} \qquad \text{for} \; i = 1,...,k
+\end{equation*}
+if all $k$ results are different from $1$ then $m$ is a primitive root.
+\newpage
+\section{Implementation}
+
+\begin{algorithm}
+    \caption{isPrimitiveRoot}\label{alg:isPrimitiveRoot}
+    \begin{algorithmic}[1]
+        \State \Comment {checks if m is primitive root modulo n}
+        \Procedure{isPrimitiveRoot}{m, n} 
+        \Require $m$ and $n$ are coprime
+        \State $eulerphi \gets$ \Call{EulerPhi}{$n$}
+        \State $factors \gets$ \Call{factorise}{$eulerphi$}
+        \ForAll {$factor in factors$}
+            \State $power \gets eulerphi / factor$ 
+            \State $t \gets$ \Call{vs::modular::power}{$m, power, n$}
+            \If{$t == 1$}
+                \State \textbf{return} $False$
+            \EndIf
+        \EndFor
+        \State \textbf{return} $True$
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+    \caption{pe026} \label{alg:pe026}
+    \begin{algorithmic}[1]
+        \State $n \gets 1000$
+        \State $primes \gets [true, .., true]$ \Comment {n times}
+        \State \Call{vs::primes::init}{primes} \Comment {Sieve for primes}
+        \Repeat \Comment {Starts from highest n}
+            \State $t \gets$ \Call{isPrimitiveRoot}{$10, n$}
+            \State $n \gets n - 1$
+            \State \Comment {until n is prime and has 10 as a primitive root}
+        \Until{  $(primes[n] \land t) \lor (n < 7)$  }
+    \end{algorithmic}
+\end{algorithm}
+
+
+\end{document}
