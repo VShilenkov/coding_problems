@@ -65,7 +65,10 @@
         "xutility": "cpp",
         "algorithm": "cpp",
         "vector": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "xmemory": "cpp",
+        "string": "cpp",
+        "numeric": "cpp"
     }
 
 }
